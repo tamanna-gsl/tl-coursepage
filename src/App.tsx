@@ -85,7 +85,8 @@ export default function App() {
               Library
             </h1>
             <p className="mt-1.5 text-sm text-muted-foreground">
-              Browse your courses and case studies, each one led by an AI mentor.
+              Build skills with short courses, in-depth ones, or put them to the
+              test with a case study. All led by an AI mentor!
             </p>
           </div>
 
