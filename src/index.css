@@ -1,0 +1,105 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 240 100% 99%;
+  --foreground: 0 0% 13%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 13%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 13%;
+  --primary: 171 100% 42%; /* turquoise, primary action */
+  --primary-foreground: 240 100% 99%;
+  --primary-dark: 171 100% 28%;
+  --secondary: 221 91% 30%; /* deep azure blue */
+  --secondary-foreground: 240 100% 99%;
+  --muted: 240 5% 96%;
+  --muted-foreground: 240 5% 40%;
+  --accent: 23 100% 65%; /* orange */
+  --accent-foreground: 0 0% 13%;
+  --destructive: 0 84.2% 60.2%; /* red, e.g. Save & Exit */
+  --destructive-foreground: 210 40% 98%;
+  --border: 240 6% 90%;
+  --input: 240 6% 90%;
+  --ring: 171 100% 42%;
+  --tertiary-pink: 319 100% 85%;
+  --tertiary-purple: 257 100% 75%;
+  --radius: 0.75rem;
+  --gradient-hero: linear-gradient(135deg, hsl(171 100% 42%) 0%, hsl(221 91% 30%) 100%);
+  --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(240 10% 97%) 100%);
+  --gradient-accent: linear-gradient(135deg, hsl(23 100% 65%) 0%, hsl(319 100% 85%) 100%);
+  --gradient-tertiary: linear-gradient(135deg, hsl(319 100% 85%) 0%, hsl(257 100% 75%) 100%);
+  --shadow-card: 0 10px 30px -10px hsl(0 0% 0% / 0.1);
+  --shadow-module: 0 20px 50px -15px hsl(0 0% 0% / 0.2);
+  --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Proxima Nova is a paid font and is not loaded in this prototype.
+     Body text falls back to Open Sans (loaded from Google Fonts).
+     In the real repo Proxima Nova is licensed and loaded. */
+  --font-heading: "Montserrat", "Open Sans", Arial, sans-serif;
+  --font-body: "Proxima Nova", "Open Sans", Arial, sans-serif;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+}
+
+/* Skeleton shimmer */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background-color: hsl(var(--muted));
+}
+
+.skeleton::after {
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    transparent 0,
+    hsl(0 0% 100% / 0.55) 40%,
+    hsl(0 0% 100% / 0.7) 50%,
+    transparent 100%
+  );
+  animation: shimmer 1.5s infinite;
+  content: "";
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after {
+    animation: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}
