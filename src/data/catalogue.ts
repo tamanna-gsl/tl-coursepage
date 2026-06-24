@@ -9,7 +9,7 @@ export const catalogue: LearningItem[] = [
     kind: "short-course",
     title: "Empathy",
     description:
-      "A short course built around an interactive film about bullying. Watch the story unfold, then talk it through with your AI mentor.",
+      "Social-emotional learning through an interactive movie & dialogue.",
     status: "completed",
     audience: "Ages 9 to 14",
     subject: "Social and Emotional Learning",
@@ -22,7 +22,7 @@ export const catalogue: LearningItem[] = [
     kind: "in-depth-course",
     title: "Entrepreneurship 101",
     description:
-      "Learn how to spot opportunities, solve problems, and make smart decisions, then build a business plan from just an idea.",
+      "Explore how ideas turn into ventures and learn to think like an entrepreneur.",
     status: "in-progress",
     audience: "Ages 12 to 17",
     subject: "Entrepreneurship",
@@ -35,7 +35,7 @@ export const catalogue: LearningItem[] = [
     kind: "case-study",
     title: "The Nykaa Story",
     description:
-      "Trace how Falguni Nayar built Nykaa into one of India's biggest beauty brands, and what her journey teaches about entrepreneurship.",
+      "Debate how Falguni Nayar spotted a market gap and built Nykaa into a national brand.",
     status: "not-started",
     audience: "Ages 12 to 17",
     subject: "Entrepreneurship",
