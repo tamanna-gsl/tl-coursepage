@@ -1,14 +1,8 @@
 import { useState } from "react";
-import type { LearningItem, LearningKind, LearningStatus } from "../types";
-import { statusLabel } from "../lib/labels";
+import type { LearningItem, LearningKind } from "../types";
 import { cn } from "../lib/cn";
 import { BookIcon, SparklesIcon } from "./icons";
-
-const statusDot: Record<LearningStatus, string> = {
-  "not-started": "bg-muted-foreground/50",
-  "in-progress": "bg-primary",
-  completed: "bg-secondary",
-};
+import { KindLabel } from "./KindLabel";
 
 // Soft single-tone tints for the placeholder (no gradients).
 const tint: Record<LearningKind, string> = {
@@ -26,7 +20,8 @@ function KindGlyph({ kind, className }: { kind: LearningKind; className?: string
 }
 
 // Image-led card header: a real photo when available, otherwise a clean
-// single-tone placeholder. Carries the status pill (and placeholder tag).
+// single-tone placeholder. Carries the kind pill (course type, colour-coded)
+// in the corner.
 export function Thumbnail({ item }: { item: LearningItem }) {
   const [broken, setBroken] = useState(false);
   const showImage = item.imageUrl && !broken;
@@ -52,12 +47,8 @@ export function Thumbnail({ item }: { item: LearningItem }) {
         </div>
       )}
 
-      <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-card/95 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-foreground shadow-sm backdrop-blur">
-        <span
-          className={cn("h-1.5 w-1.5 rounded-full", statusDot[item.status])}
-          aria-hidden
-        />
-        {statusLabel[item.status]}
+      <span className="absolute left-3 top-3 inline-flex items-center rounded-full bg-card/95 px-2.5 py-1 shadow-sm backdrop-blur">
+        <KindLabel kind={item.kind} />
       </span>
 
       {item.isPlaceholder && (

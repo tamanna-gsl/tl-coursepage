@@ -1,7 +1,6 @@
 import type { CaseStudyItem } from "../types";
 import { formatDuration } from "../lib/labels";
 import { Thumbnail } from "./Thumbnail";
-import { KindLabel } from "./KindLabel";
 import { Button } from "./Button";
 import { Chip } from "./Chip";
 import { ArrowRightIcon } from "./icons";
@@ -18,9 +17,6 @@ export function CaseStudyCard({
       <Thumbnail item={caseStudy} />
 
       <div className="flex flex-1 flex-col gap-3 p-5">
-        {/* Magenta "Case Study" label marks this card as distinct. */}
-        <KindLabel kind="case-study" />
-
         <h3 className="font-heading text-xl font-bold leading-snug text-foreground">
           {caseStudy.title}
         </h3>
@@ -42,7 +38,7 @@ export function CaseStudyCard({
             className="w-full !rounded-full"
             onClick={() => onView(caseStudy)}
           >
-            View Case
+            {caseStudy.status === "completed" ? "Revisit case" : "View Case"}
             <ArrowRightIcon className="h-4 w-4" />
           </Button>
         </div>

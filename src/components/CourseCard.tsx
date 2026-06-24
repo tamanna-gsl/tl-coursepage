@@ -1,6 +1,5 @@
 import type { CourseItem } from "../types";
 import { Thumbnail } from "./Thumbnail";
-import { KindLabel } from "./KindLabel";
 import { ProgressBar } from "./ProgressBar";
 import { Button } from "./Button";
 import { Chip } from "./Chip";
@@ -21,8 +20,6 @@ export function CourseCard({
       <Thumbnail item={course} />
 
       <div className="flex flex-1 flex-col gap-3 p-5">
-        <KindLabel kind={course.kind} />
-
         <h3 className="font-heading text-xl font-bold leading-snug text-foreground">
           {course.title}
         </h3>
@@ -39,7 +36,7 @@ export function CourseCard({
           )}
         </div>
 
-        {inProgress && (
+        {(inProgress || completed) && (
           <ProgressBar
             value={course.completedChapters}
             max={course.totalChapters}
