@@ -37,12 +37,10 @@ export function DiscussionScreen({
   caseStudy,
   onEndDiscussion,
   onSaveExit,
-  onBack,
 }: {
   caseStudy: CaseStudyItem;
   onEndDiscussion: (caseStudy: CaseStudyItem) => void;
   onSaveExit: (caseStudy: CaseStudyItem) => void;
-  onBack: () => void;
 }) {
   const script = discussionScripts[caseStudy.id] ?? [];
   const title = `${caseStudy.title} - ${caseStudy.subject}`;
@@ -136,7 +134,7 @@ export function DiscussionScreen({
     clearTimers();
     stopAudio();
     setPhase("ended");
-    after(1400, () => onEndDiscussion(caseStudy));
+    after(900, () => onEndDiscussion(caseStudy));
   };
 
   const afterModeratorSpoke = () => {
@@ -529,13 +527,9 @@ export function DiscussionScreen({
                     Discussion complete
                   </p>
                   <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">
-                    Generating your performance report... (the report screen is
-                    a separate brief and not built yet)
+                    Taking you to your performance report...
                   </p>
                 </div>
-                <Button className="!rounded-full" onClick={onBack}>
-                  Back to library
-                </Button>
               </div>
             )}
           </section>

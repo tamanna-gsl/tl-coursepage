@@ -21,6 +21,8 @@ import {
 } from "./components/PreSessionModal";
 import { ReadingScreen } from "./screens/ReadingScreen";
 import { DiscussionScreen } from "./screens/DiscussionScreen";
+import { EvaluationScreen } from "./screens/EvaluationScreen";
+import { reports, type ReportData } from "./data/reportData";
 
 const STUDENT_NAME = "Student1";
 
@@ -36,7 +38,7 @@ const statusOrder: Record<LearningStatus, number> = {
   completed: 2,
 };
 
-type View = "list" | "reading" | "discussion";
+type View = "list" | "reading" | "discussion" | "evaluation";
 
 export default function App() {
   // Catalogue is held in state so a session can mark a case In Progress.
@@ -44,6 +46,11 @@ export default function App() {
 
   const [view, setView] = useState<View>("list");
   const [sessionCase, setSessionCase] = useState<CaseStudyItem | null>(null);
+
+  // Completed reports, keyed by case id. In-memory placeholder; the real
+  // product persists these to the backend. Screen 7 (dashboard) will read these;
+  // held in a ref for now and promoted to state when the dashboard needs it.
+  const reportStore = useRef<Record<string, ReportData>>({});
 
   const [phase, setPhase] = useState<Phase>("loading");
   const [filter, setFilter] = useState<KindFilter>("all");
@@ -147,10 +154,30 @@ export default function App() {
     setView("discussion");
   };
 
+  // Discussion ends: route to the performance evaluation with the same case.
   const endDiscussion = (caseStudy: CaseStudyItem) => {
-    // The performance report is the next brief and not built yet.
-    // eslint-disable-next-line no-console
-    console.log("[Talk & Learn] go to report:", caseStudy.id, caseStudy.title);
+    setSessionCase(caseStudy);
+    setView("evaluation");
+  };
+
+  const markCompleted = (id: string) =>
+    setItems((prev) =>
+      prev.map((i) =>
+        i.id === id ? ({ ...i, status: "completed" } as LearningItem) : i
+      )
+    );
+
+  // Report generated: mark the case Completed and save the report so the
+  // dashboard (Screen 7) can open it later.
+  const completeReport = (caseStudy: CaseStudyItem) => {
+    markCompleted(caseStudy.id);
+    const report = reports[caseStudy.id];
+    if (report) reportStore.current[caseStudy.id] = report;
+  };
+
+  const viewDiscussion = (caseStudy: CaseStudyItem) => {
+    setSessionCase(caseStudy);
+    setView("discussion");
   };
 
   // Prototype-only: open the modal in a given state from the Preview control.
@@ -177,7 +204,18 @@ export default function App() {
         caseStudy={sessionCase}
         onEndDiscussion={endDiscussion}
         onSaveExit={saveAndExit}
-        onBack={backToList}
+      />
+    );
+  }
+
+  if (view === "evaluation" && sessionCase) {
+    return (
+      <EvaluationScreen
+        caseStudy={sessionCase}
+        report={reports[sessionCase.id]}
+        onBackToCourses={backToList}
+        onViewDiscussion={viewDiscussion}
+        onReportReady={completeReport}
       />
     );
   }

@@ -3,15 +3,18 @@ import { GetSetLearnLogo } from "../GetSetLearnLogo";
 import { Button } from "../Button";
 
 // Chrome that wraps the whole case study session (Reading, Discussion,
-// Evaluation). Top bar: Get Set Learn logo left, case title centred, and
-// Save & Exit (destructive red) right.
+// Evaluation). Top bar: Get Set Learn logo left, case title centred, and a
+// right-hand action. By default that action is Save & Exit (destructive red);
+// the terminal Evaluation screen passes its own action (Back to Courses).
 export function SessionShell({
   title,
   onSaveExit,
+  action,
   children,
 }: {
   title: string;
-  onSaveExit: () => void;
+  onSaveExit?: () => void;
+  action?: ReactNode;
   children: ReactNode;
 }) {
   return (
@@ -25,14 +28,13 @@ export function SessionShell({
           >
             {title}
           </p>
-          <Button
-            variant="destructive"
-            size="sm"
-            className="shrink-0"
-            onClick={onSaveExit}
-          >
-            Save &amp; Exit
-          </Button>
+          <div className="shrink-0">
+            {action ?? (
+              <Button variant="destructive" size="sm" onClick={onSaveExit}>
+                Save &amp; Exit
+              </Button>
+            )}
+          </div>
         </div>
       </header>
 
