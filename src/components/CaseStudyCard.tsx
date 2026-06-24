@@ -38,7 +38,11 @@ export function CaseStudyCard({
             className="w-full !rounded-full"
             onClick={() => onView(caseStudy)}
           >
-            {caseStudy.status === "completed" ? "Revisit case" : "View Case"}
+            {caseStudy.status === "completed"
+              ? "Revisit case"
+              : caseStudy.status === "in-progress"
+                ? "Continue case"
+                : "View Case"}
             <ArrowRightIcon className="h-4 w-4" />
           </Button>
         </div>

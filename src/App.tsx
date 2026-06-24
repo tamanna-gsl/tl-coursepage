@@ -19,6 +19,7 @@ import {
   PreSessionModal,
   type CaseModalState,
 } from "./components/PreSessionModal";
+import { ReadingScreen } from "./screens/ReadingScreen";
 
 const STUDENT_NAME = "Student1";
 
@@ -34,7 +35,15 @@ const statusOrder: Record<LearningStatus, number> = {
   completed: 2,
 };
 
+type View = "list" | "reading";
+
 export default function App() {
+  // Catalogue is held in state so a session can mark a case In Progress.
+  const [items, setItems] = useState<LearningItem[]>(catalogue);
+
+  const [view, setView] = useState<View>("list");
+  const [sessionCase, setSessionCase] = useState<CaseStudyItem | null>(null);
+
   const [phase, setPhase] = useState<Phase>("loading");
   const [filter, setFilter] = useState<KindFilter>("all");
   const [sortBy, setSortBy] = useState<SortBy>("default");
@@ -60,20 +69,21 @@ export default function App() {
     else el.removeAttribute("inert");
   }, [caseModal]);
 
-  const items: LearningItem[] = phase === "empty" ? [] : catalogue;
+  const listItems: LearningItem[] = phase === "empty" ? [] : items;
 
   const counts = useMemo<Record<KindFilter, number>>(
     () => ({
-      all: items.length,
-      "short-course": items.filter((i) => i.kind === "short-course").length,
-      "in-depth-course": items.filter((i) => i.kind === "in-depth-course").length,
-      "case-study": items.filter((i) => i.kind === "case-study").length,
+      all: listItems.length,
+      "short-course": listItems.filter((i) => i.kind === "short-course").length,
+      "in-depth-course": listItems.filter((i) => i.kind === "in-depth-course")
+        .length,
+      "case-study": listItems.filter((i) => i.kind === "case-study").length,
     }),
-    [items]
+    [listItems]
   );
 
   const visible = useMemo(() => {
-    let list = items;
+    let list = listItems;
     if (filter !== "all") list = list.filter((i) => i.kind === filter);
     if (sortBy === "title") {
       list = [...list].sort((a, b) => a.title.localeCompare(b.title));
@@ -83,36 +93,79 @@ export default function App() {
       );
     }
     return list;
-  }, [items, filter, sortBy]);
+  }, [listItems, filter, sortBy]);
 
   const resetFilters = () => {
     setFilter("all");
     setSortBy("default");
   };
 
-  // Open the pre-session modal carrying the tapped case. In the real app a
-  // fetch could run here (modal would show its loading state first); with
-  // in-memory data it opens straight to ready.
+  // Open the pre-session modal carrying the tapped case.
   const openCase = (caseStudy: CaseStudyItem) => {
     setActiveCase(caseStudy);
     setCaseModal("ready");
   };
-
   const closeCase = () => setCaseModal(null);
 
+  // Start Session: enter the reading screen with the chosen case.
   const startSession = (caseStudy: CaseStudyItem) => {
-    // The reading screen is the next brief and not built yet.
+    setCaseModal(null);
+    setSessionCase(caseStudy);
+    setView("reading");
+  };
+
+  const markInProgress = (id: string) =>
+    setItems((prev) =>
+      prev.map((i) =>
+        i.id === id && i.status !== "completed"
+          ? ({ ...i, status: "in-progress" } as LearningItem)
+          : i
+      )
+    );
+
+  // Save & Exit: mark the case In Progress and return to the list with state
+  // intact. Re-entry resume-vs-restart is unresolved in the PRD, so for the
+  // prototype re-entering an In Progress case restarts at the reading screen.
+  // Placeholder pending the platform's real behaviour for other courses.
+  const saveAndExit = (caseStudy: CaseStudyItem) => {
+    markInProgress(caseStudy.id);
+    setView("list");
+    setSessionCase(null);
+  };
+
+  // Plain return to the list (e.g. from the unavailable-case error).
+  const backToList = () => {
+    setView("list");
+    setSessionCase(null);
+  };
+
+  const startDiscussion = (caseStudy: CaseStudyItem) => {
+    // The discussion screen is the next brief and not built yet.
     // eslint-disable-next-line no-console
-    console.log("[Talk & Learn] start session:", caseStudy.id, caseStudy.title);
-    closeCase();
+    console.log(
+      "[Talk & Learn] start discussion:",
+      caseStudy.id,
+      caseStudy.title
+    );
   };
 
   // Prototype-only: open the modal in a given state from the Preview control.
   const previewCase = (state: "ready" | "error") => {
-    const sample = catalogue.find(isCaseStudy) ?? null;
+    const sample = items.find(isCaseStudy) ?? null;
     setActiveCase(sample);
     setCaseModal(state);
   };
+
+  if (view === "reading" && sessionCase) {
+    return (
+      <ReadingScreen
+        caseStudy={sessionCase}
+        onStartDiscussion={startDiscussion}
+        onSaveExit={saveAndExit}
+        onBack={backToList}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -134,7 +187,7 @@ export default function App() {
               </p>
             </div>
 
-            {phase === "ready" && items.length > 0 && (
+            {phase === "ready" && listItems.length > 0 && (
               <FilterBar
                 active={filter}
                 onChange={setFilter}

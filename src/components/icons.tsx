@@ -139,3 +139,23 @@ export function XIcon(props: SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+export function ChevronRightIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base} {...props}>
+      <path d="m9 6 6 6-6 6" />
+    </svg>
+  );
+}
+
+export function MicOffIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M3 3l18 18" />
+      <path d="M9 9v3a3 3 0 0 0 4.6 2.5" />
+      <path d="M15 11.2V6a3 3 0 0 0-5.8-1" />
+      <path d="M5 11a7 7 0 0 0 10.7 6M19 11a7 7 0 0 1-.6 2.8" />
+      <path d="M12 18v3" />
+    </svg>
+  );
+}
