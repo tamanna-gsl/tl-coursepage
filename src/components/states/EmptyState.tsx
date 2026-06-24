@@ -8,11 +8,11 @@ export function EmptyState({ onReset }: { onReset?: () => void }) {
         <EmptyIcon className="h-8 w-8" />
       </span>
       <h3 className="font-heading text-xl font-bold text-foreground">
-        No learning available yet
+        Your library is empty
       </h3>
       <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
         There is nothing here for now. New courses and case studies will appear
-        on this page as soon as your school adds them.
+        in your library as soon as your school adds them.
       </p>
       {onReset && (
         <Button variant="outline" className="mt-6" onClick={onReset}>

@@ -4,7 +4,7 @@ export type KindFilter = "all" | "short-course" | "in-depth-course" | "case-stud
 export type SortBy = "default" | "status" | "title";
 
 const filters: { value: KindFilter; label: string }[] = [
-  { value: "all", label: "All learning" },
+  { value: "all", label: "All" },
   { value: "short-course", label: "Short courses" },
   { value: "in-depth-course", label: "In-depth courses" },
   { value: "case-study", label: "Case studies" },
@@ -28,7 +28,7 @@ export function FilterBar({
       <div
         className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1"
         role="tablist"
-        aria-label="Filter learning by type"
+        aria-label="Filter library by type"
       >
         {filters.map((f) => {
           const isActive = active === f.value;

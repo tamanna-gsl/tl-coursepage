@@ -82,11 +82,10 @@ export default function App() {
               Welcome back, {STUDENT_NAME}
             </p>
             <h1 className="mt-1 font-heading text-2xl font-extrabold text-foreground sm:text-3xl">
-              Available learning
+              Library
             </h1>
             <p className="mt-1.5 text-sm text-muted-foreground">
-              Browse and start learning from your courses and case studies, each
-              led by an AI mentor.
+              Browse your courses and case studies, each one led by an AI mentor.
             </p>
           </div>
 

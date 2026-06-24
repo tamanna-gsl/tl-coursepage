@@ -8,7 +8,7 @@ export function ErrorState({ onRetry }: { onRetry: () => void }) {
         <AlertIcon className="h-8 w-8" />
       </span>
       <h3 className="font-heading text-xl font-bold text-foreground">
-        We could not load your learning
+        We could not load your library
       </h3>
       <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
         Something went wrong while fetching your courses and case studies. Please
