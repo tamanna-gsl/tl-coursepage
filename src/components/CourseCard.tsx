@@ -32,9 +32,11 @@ export function CourseCard({
         </p>
 
         <div className="flex flex-wrap gap-2">
-          <Chip>{course.audience}</Chip>
-          {!inProgress && <Chip>{course.totalChapters} chapters</Chip>}
-          {course.kind === "short-course" && <Chip>Interactive film</Chip>}
+          <Chip kind={course.kind}>{course.audience}</Chip>
+          <Chip kind={course.kind}>{course.totalChapters} chapters</Chip>
+          {course.kind === "short-course" && (
+            <Chip kind={course.kind}>Interactive film</Chip>
+          )}
         </div>
 
         {inProgress && (

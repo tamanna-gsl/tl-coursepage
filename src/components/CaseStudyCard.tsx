@@ -31,9 +31,9 @@ export function CaseStudyCard({
 
         {/* Case study metadata: subject, difficulty, duration. */}
         <div className="flex flex-wrap gap-2">
-          <Chip>{caseStudy.subject}</Chip>
-          <Chip>{caseStudy.difficulty}</Chip>
-          <Chip>{formatDuration(caseStudy.durationMinutes)}</Chip>
+          <Chip kind="case-study">{caseStudy.subject}</Chip>
+          <Chip kind="case-study">{caseStudy.difficulty}</Chip>
+          <Chip kind="case-study">{formatDuration(caseStudy.durationMinutes)}</Chip>
         </div>
 
         <div className="mt-auto pt-2">

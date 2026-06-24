@@ -3,10 +3,8 @@ export function ProgressBar({ value, max }: { value: number; max: number }) {
   return (
     <div>
       <div className="mb-1.5 flex items-center justify-between text-xs text-muted-foreground">
-        <span>
-          {value} of {max} chapters
-        </span>
-        <span className="font-semibold text-foreground">{pct}%</span>
+        <span>Progress</span>
+        <span className="font-semibold text-foreground">{pct}% complete</span>
       </div>
       <div
         className="h-1.5 w-full overflow-hidden rounded-full bg-muted"
