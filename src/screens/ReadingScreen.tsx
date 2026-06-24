@@ -164,7 +164,7 @@ export function ReadingScreen({
               )}
               <div className="flex justify-center">
                 <Button
-                  variant="gradient"
+                  variant="primary"
                   className="w-full !rounded-full sm:w-auto sm:min-w-[20rem]"
                   onClick={startDiscussion}
                   disabled={mic === "pending"}

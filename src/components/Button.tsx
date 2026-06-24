@@ -11,8 +11,10 @@ type Variant =
 type Size = "sm" | "md";
 
 const variants: Record<Variant, string> = {
+  // Solid deep teal: used for session buttons (after a case starts).
   primary:
-    "bg-primary text-primary-foreground hover:bg-primary-dark shadow-sm",
+    "bg-primary-dark text-primary-foreground hover:bg-[hsl(171_100%_22%)] shadow-sm",
+  // Gradient: used for the landing page / library card CTAs.
   gradient:
     "bg-gradient-hero text-primary-foreground hover:opacity-95 shadow-sm",
   destructive:
