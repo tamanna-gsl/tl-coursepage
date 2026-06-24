@@ -15,6 +15,7 @@ export const catalogue: LearningItem[] = [
     subject: "Social and Emotional Learning",
     totalChapters: 3,
     completedChapters: 3,
+    tags: ["Interactive characters", "Social Emotional Learning", "20 mins"],
     // imageUrl: set once the landing page photo is available.
   },
   {
@@ -26,8 +27,9 @@ export const catalogue: LearningItem[] = [
     status: "in-progress",
     audience: "Ages 12 to 17",
     subject: "Entrepreneurship",
-    totalChapters: 6,
+    totalChapters: 8,
     completedChapters: 2,
+    tags: ["8 chapters", "Mentors", "Grade 7"],
     // imageUrl: set once the landing page photo is available.
   },
   {

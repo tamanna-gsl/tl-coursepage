@@ -29,6 +29,8 @@ export interface CourseItem extends BaseLearningItem {
   totalChapters: number;
   /** Chapters the student has completed so far. */
   completedChapters: number;
+  /** Metadata chips shown on the card. */
+  tags: string[];
 }
 
 export interface CaseStudyItem extends BaseLearningItem {
