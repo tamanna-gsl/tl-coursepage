@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import type { CaseStudyItem } from "../types";
 import {
   discussionScripts,
@@ -53,6 +53,11 @@ export function DiscussionScreen({
   const [seconds, setSeconds] = useState(0);
   const [error, setError] = useState<ErrorKind>(script.length ? null : "service");
   const [mobilePanel, setMobilePanel] = useState<MobilePanel>("conversation");
+
+  // Resizable split between Case Reference (left) and conversation (right).
+  const [leftPct, setLeftPct] = useState(40);
+  const splitContainerRef = useRef<HTMLDivElement>(null);
+  const draggingRef = useRef(false);
 
   const idxRef = useRef(0);
   const timers = useRef<number[]>([]);
@@ -203,6 +208,36 @@ export function DiscussionScreen({
     if (el) el.scrollTop = el.scrollHeight;
   }, [transcript, phase]);
 
+  // Panel resize: drag the divider to repartition the two panels (22%-60%).
+  const clampPct = (p: number) => Math.min(60, Math.max(22, p));
+  const onSplitterDown = () => {
+    draggingRef.current = true;
+    document.body.style.userSelect = "none";
+    document.body.style.cursor = "col-resize";
+  };
+  useEffect(() => {
+    const onMove = (e: PointerEvent) => {
+      if (!draggingRef.current || !splitContainerRef.current) return;
+      const rect = splitContainerRef.current.getBoundingClientRect();
+      setLeftPct(clampPct(((e.clientX - rect.left) / rect.width) * 100));
+    };
+    const onUp = () => {
+      draggingRef.current = false;
+      document.body.style.userSelect = "";
+      document.body.style.cursor = "";
+    };
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+    };
+  }, []);
+  const onSplitterKey = (e: KeyboardEvent) => {
+    if (e.key === "ArrowLeft") setLeftPct((p) => clampPct(p - 3));
+    if (e.key === "ArrowRight") setLeftPct((p) => clampPct(p + 3));
+  };
+
   const statusText =
     error === "mic"
       ? "Microphone disconnected"
@@ -236,8 +271,10 @@ export function DiscussionScreen({
   return (
     <SessionShell title={title} onSaveExit={() => onSaveExit(caseStudy)}>
       <div className="flex h-[calc(100dvh-4rem)] flex-col">
+        {/* Stepper kept at the same width as the reading screen (max-w-3xl)
+            so it does not change size on the transition between screens. */}
         <div className="shrink-0 border-b border-border bg-background/90 px-4 py-3 backdrop-blur sm:px-6">
-          <div className="mx-auto max-w-5xl">
+          <div className="mx-auto max-w-3xl">
             <ProgressStepper active="discussion" />
           </div>
         </div>
@@ -260,14 +297,32 @@ export function DiscussionScreen({
           ))}
         </div>
 
-        <div className="flex min-h-0 flex-1">
+        <div
+          ref={splitContainerRef}
+          className="flex min-h-0 flex-1"
+          style={{ ["--left" as string]: `${leftPct}%` }}
+        >
           {/* Left: Case Reference */}
           <CaseReferencePanel
             caseId={caseStudy.id}
             className={cn(
-              "min-h-0 w-full border-r border-border md:flex md:w-2/5 md:max-w-md",
-              mobilePanel === "reference" ? "flex" : "hidden"
+              "min-h-0 w-full border-border md:w-[var(--left)] md:shrink-0 md:border-r",
+              mobilePanel === "reference" ? "flex" : "hidden md:flex"
             )}
+          />
+
+          {/* Draggable divider (desktop only) */}
+          <div
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="Resize panels"
+            aria-valuenow={Math.round(leftPct)}
+            aria-valuemin={22}
+            aria-valuemax={60}
+            tabIndex={0}
+            onPointerDown={onSplitterDown}
+            onKeyDown={onSplitterKey}
+            className="hidden w-1.5 shrink-0 cursor-col-resize bg-border/60 transition-colors hover:bg-primary/40 focus-visible:bg-primary/40 focus-visible:outline-none md:block"
           />
 
           {/* Right: conversation */}
