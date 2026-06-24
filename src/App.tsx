@@ -20,6 +20,7 @@ import {
   type CaseModalState,
 } from "./components/PreSessionModal";
 import { ReadingScreen } from "./screens/ReadingScreen";
+import { DiscussionScreen } from "./screens/DiscussionScreen";
 
 const STUDENT_NAME = "Student1";
 
@@ -35,7 +36,7 @@ const statusOrder: Record<LearningStatus, number> = {
   completed: 2,
 };
 
-type View = "list" | "reading";
+type View = "list" | "reading" | "discussion";
 
 export default function App() {
   // Catalogue is held in state so a session can mark a case In Progress.
@@ -139,14 +140,17 @@ export default function App() {
     setSessionCase(null);
   };
 
+  // Enter the discussion screen (microphone already granted on the reading
+  // screen).
   const startDiscussion = (caseStudy: CaseStudyItem) => {
-    // The discussion screen is the next brief and not built yet.
+    setSessionCase(caseStudy);
+    setView("discussion");
+  };
+
+  const endDiscussion = (caseStudy: CaseStudyItem) => {
+    // The performance report is the next brief and not built yet.
     // eslint-disable-next-line no-console
-    console.log(
-      "[Talk & Learn] start discussion:",
-      caseStudy.id,
-      caseStudy.title
-    );
+    console.log("[Talk & Learn] go to report:", caseStudy.id, caseStudy.title);
   };
 
   // Prototype-only: open the modal in a given state from the Preview control.
@@ -161,6 +165,17 @@ export default function App() {
       <ReadingScreen
         caseStudy={sessionCase}
         onStartDiscussion={startDiscussion}
+        onSaveExit={saveAndExit}
+        onBack={backToList}
+      />
+    );
+  }
+
+  if (view === "discussion" && sessionCase) {
+    return (
+      <DiscussionScreen
+        caseStudy={sessionCase}
+        onEndDiscussion={endDiscussion}
         onSaveExit={saveAndExit}
         onBack={backToList}
       />
