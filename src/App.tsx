@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { catalogue } from "./data/catalogue";
 import { isCaseStudy, type LearningItem, type LearningStatus } from "./types";
 import { Header } from "./components/Header";
-import { Hero } from "./components/Hero";
 import { FilterBar, type KindFilter, type SortBy } from "./components/FilterBar";
 import { CourseCard } from "./components/CourseCard";
 import { CaseStudyCard } from "./components/CaseStudyCard";
@@ -76,16 +75,18 @@ export default function App() {
     <div className="min-h-screen bg-background pb-24">
       <Header studentName={STUDENT_NAME} />
 
-      <main className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-        <Hero count={phase === "ready" ? items.length : 0} />
-
+      <main className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
         <section className="flex flex-col gap-6">
           <div>
-            <h2 className="font-heading text-xl font-bold text-foreground sm:text-2xl">
+            <p className="text-sm font-semibold text-primary">
+              Welcome back, {STUDENT_NAME}
+            </p>
+            <h1 className="mt-1 font-heading text-2xl font-extrabold text-foreground sm:text-3xl">
               Available learning
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Browse and start learning from your courses and case studies.
+            </h1>
+            <p className="mt-1.5 text-sm text-muted-foreground">
+              Browse and start learning from your courses and case studies, each
+              led by an AI mentor.
             </p>
           </div>
 

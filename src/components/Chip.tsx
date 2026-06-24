@@ -1,25 +1,9 @@
 import type { ReactNode } from "react";
-import { cn } from "../lib/cn";
 
-export function Chip({
-  children,
-  icon,
-  tone = "neutral",
-}: {
-  children: ReactNode;
-  icon?: ReactNode;
-  tone?: "neutral" | "accent" | "subject";
-}) {
+// Minimal, uniform metadata chip, matching the landing page card style.
+export function Chip({ children }: { children: ReactNode }) {
   return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium",
-        tone === "neutral" && "bg-muted text-muted-foreground",
-        tone === "accent" && "bg-accent/15 text-foreground",
-        tone === "subject" && "bg-secondary/10 text-secondary"
-      )}
-    >
-      {icon}
+    <span className="inline-flex items-center rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
       {children}
     </span>
   );

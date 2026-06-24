@@ -25,7 +25,7 @@ export function Header({ studentName }: { studentName: string }) {
             Welcome,{" "}
             <span className="font-semibold text-foreground">{studentName}</span>
           </span>
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-tertiary text-sm font-bold text-foreground shadow-sm">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary text-sm font-bold text-secondary-foreground shadow-sm">
             {initial}
           </span>
         </div>

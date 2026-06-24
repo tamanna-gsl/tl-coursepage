@@ -17,6 +17,8 @@ interface BaseLearningItem {
   /** Audience, e.g. "Ages 9 to 14" or "Grades 7 to 12". */
   audience: string;
   subject: string;
+  /** Optional thumbnail. When absent, a clean placeholder is shown. */
+  imageUrl?: string;
   /** Clearly flags filler items added only to populate the grid. */
   isPlaceholder?: boolean;
 }

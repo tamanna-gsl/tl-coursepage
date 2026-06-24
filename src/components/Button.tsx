@@ -1,12 +1,14 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { cn } from "../lib/cn";
 
-type Variant = "primary" | "secondary" | "outline" | "ghost";
+type Variant = "primary" | "gradient" | "secondary" | "outline" | "ghost";
 type Size = "sm" | "md";
 
 const variants: Record<Variant, string> = {
   primary:
     "bg-primary text-primary-foreground hover:bg-primary-dark shadow-sm",
+  gradient:
+    "bg-gradient-hero text-primary-foreground hover:opacity-95 shadow-sm",
   secondary:
     "bg-secondary text-secondary-foreground hover:opacity-90 shadow-sm",
   outline:
