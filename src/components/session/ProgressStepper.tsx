@@ -13,7 +13,7 @@ export function ProgressStepper({ active }: { active: StageKey }) {
   return (
     <nav aria-label="Session progress">
       {/* Desktop: full horizontal stepper */}
-      <ol className="hidden items-stretch rounded-xl border border-border bg-card p-1.5 shadow-sm sm:flex">
+      <ol className="hidden items-center gap-1 rounded-xl border border-border bg-card p-2 shadow-sm sm:flex">
         {STAGES.map((stage, i) => {
           const isActive = i === activeIndex;
           const isComplete = i < activeIndex;
@@ -25,18 +25,18 @@ export function ProgressStepper({ active }: { active: StageKey }) {
             >
               <div
                 className={cn(
-                  "flex flex-1 items-center gap-3 rounded-lg px-4 py-2.5",
-                  isActive && "bg-primary text-primary-foreground"
+                  "flex flex-1 items-center gap-3 rounded-lg px-3 py-2",
+                  isActive && "bg-primary/10"
                 )}
               >
                 <span
                   className={cn(
-                    "shrink-0",
+                    "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
                     isActive
-                      ? "text-primary-foreground"
+                      ? "bg-primary text-primary-foreground"
                       : isComplete
-                        ? "text-primary"
-                        : "text-muted-foreground"
+                        ? "bg-primary/15 text-primary"
+                        : "bg-muted text-muted-foreground"
                   )}
                 >
                   {isComplete ? (
@@ -46,17 +46,17 @@ export function ProgressStepper({ active }: { active: StageKey }) {
                   )}
                 </span>
                 <span className="min-w-0">
-                  <span className="block truncate text-sm font-bold leading-tight">
-                    {stage.label}
-                  </span>
                   <span
                     className={cn(
-                      "block truncate text-xs leading-tight",
-                      isActive
-                        ? "text-primary-foreground/80"
+                      "block truncate text-sm font-bold leading-tight",
+                      isActive || isComplete
+                        ? "text-foreground"
                         : "text-muted-foreground"
                     )}
                   >
+                    {stage.label}
+                  </span>
+                  <span className="block truncate text-xs leading-tight text-muted-foreground">
                     {stage.sub}
                   </span>
                 </span>
@@ -70,7 +70,7 @@ export function ProgressStepper({ active }: { active: StageKey }) {
               </div>
               {i < STAGES.length - 1 && (
                 <ChevronRightIcon
-                  className="mx-0.5 h-4 w-4 shrink-0 text-muted-foreground"
+                  className="mx-1 h-4 w-4 shrink-0 text-muted-foreground/40"
                   aria-hidden
                 />
               )}
@@ -91,14 +91,18 @@ export function ProgressStepper({ active }: { active: StageKey }) {
                 key={s.key}
                 className={cn(
                   "h-2 w-2 rounded-full",
-                  i <= activeIndex ? "bg-primary" : "bg-muted"
+                  i < activeIndex
+                    ? "bg-primary/40"
+                    : i === activeIndex
+                      ? "bg-primary"
+                      : "bg-muted"
                 )}
               />
             ))}
           </span>
         </div>
         <div className="mt-2 flex items-center gap-2.5">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
             {(() => {
               const Active = STAGES[activeIndex].Icon;
               return <Active className="h-5 w-5" aria-hidden />;
