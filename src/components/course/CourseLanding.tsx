@@ -2,8 +2,22 @@ import { useEffect, useState } from "react";
 import type { Chapter, Course } from "../../data/courseContent";
 import { Button } from "../Button";
 import { KindLabel } from "../KindLabel";
-import { ArrowLeftIcon, LockIcon, PlayIcon, SparklesIcon } from "../icons";
+import {
+  ArrowLeftIcon,
+  BookIcon,
+  LockIcon,
+  PlayIcon,
+  SparklesIcon,
+  UsersIcon,
+} from "../icons";
 import { cn } from "../../lib/cn";
+
+// Distinct avatar colours for the peeking mentor cluster in the hero.
+const AVATARS = [
+  "bg-gradient-to-br from-[hsl(171_100%_45%)] to-[hsl(221_91%_45%)]",
+  "bg-gradient-to-br from-[hsl(258_75%_62%)] to-[hsl(319_75%_58%)]",
+  "bg-gradient-to-br from-[hsl(28_95%_55%)] to-[hsl(340_80%_60%)]",
+];
 
 // Per-chapter accent palette, used subtly (top strip, eyebrow, icon tile, and
 // outcome dots) to infuse colour while keeping the cards elegant.
@@ -246,11 +260,15 @@ export function CourseLanding({
         <section className="relative overflow-hidden rounded-2xl border border-border bg-gradient-card p-5 shadow-card sm:p-6">
           {/* Faint colour wash for a touch of life on the white */}
           <div
-            className="pointer-events-none absolute -right-16 -top-24 h-64 w-64 rounded-full bg-primary/10 blur-3xl"
+            className="pointer-events-none absolute -right-16 -top-24 h-72 w-72 rounded-full bg-primary/15 blur-3xl"
             aria-hidden
           />
           <div
-            className="pointer-events-none absolute -bottom-24 right-1/4 h-56 w-56 rounded-full bg-[hsl(258_100%_70%/0.08)] blur-3xl"
+            className="pointer-events-none absolute -bottom-24 right-1/4 h-60 w-60 rounded-full bg-[hsl(258_100%_70%/0.13)] blur-3xl"
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none absolute -left-20 top-1/3 h-56 w-56 rounded-full bg-[hsl(28_100%_60%/0.08)] blur-3xl"
             aria-hidden
           />
 
@@ -275,6 +293,30 @@ export function CourseLanding({
                   {s.label}
                 </span>
               ))}
+            </div>
+
+            {/* Peeking mentor cluster */}
+            <div className="mt-4 flex items-center gap-3">
+              <div className="flex -space-x-2">
+                {course.mentors.slice(0, 3).map((m, i) => (
+                  <span
+                    key={m.id}
+                    className={cn(
+                      "flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold text-white ring-2 ring-card",
+                      AVATARS[i % AVATARS.length]
+                    )}
+                    aria-hidden
+                  >
+                    {initials(m.name)}
+                  </span>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Learn with{" "}
+                <span className="font-semibold text-foreground">
+                  {course.mentors.map((m) => m.name.split(" ")[0]).join(" & ")}
+                </span>
+              </p>
             </div>
 
             {/* Foot action row: progress across, Continue on the right */}
@@ -309,7 +351,10 @@ export function CourseLanding({
         <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Chapters */}
           <div className="lg:col-span-2">
-            <h2 className="font-heading text-2xl font-extrabold text-foreground">
+            <h2 className="flex items-center gap-2.5 font-heading text-2xl font-extrabold text-foreground">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <BookIcon className="h-5 w-5" aria-hidden />
+              </span>
               Curriculum Chapters
             </h2>
             <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -328,7 +373,10 @@ export function CourseLanding({
           <aside>
             <div className="rounded-2xl border border-border bg-card p-5 shadow-card lg:sticky lg:top-6">
               <div className="flex items-center justify-between">
-                <h2 className="font-heading text-lg font-bold text-foreground">
+                <h2 className="flex items-center gap-2 font-heading text-lg font-bold text-foreground">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[hsl(258_90%_96%)] text-[hsl(258_60%_55%)]">
+                    <UsersIcon className="h-4 w-4" aria-hidden />
+                  </span>
                   Your Mentors
                 </h2>
                 <span className="text-xs font-semibold text-muted-foreground">
