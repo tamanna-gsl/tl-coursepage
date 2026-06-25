@@ -215,3 +215,39 @@ export function UsersIcon(props: SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+export function LockIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base} {...props}>
+      <rect x="5" y="11" width="14" height="10" rx="2" />
+      <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+    </svg>
+  );
+}
+
+export function MenuIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+  );
+}
+
+export function ArrowLeftIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M19 12H5M11 18l-6-6 6-6" />
+    </svg>
+  );
+}
+
+export function SwitchIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M16 3l4 4-4 4" />
+      <path d="M20 7H8a4 4 0 0 0-4 4" />
+      <path d="M8 21l-4-4 4-4" />
+      <path d="M4 17h12a4 4 0 0 0 4-4" />
+    </svg>
+  );
+}

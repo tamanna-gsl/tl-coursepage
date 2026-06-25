@@ -23,14 +23,11 @@ import { ReadingScreen } from "./screens/ReadingScreen";
 import { DiscussionScreen } from "./screens/DiscussionScreen";
 import { EvaluationScreen } from "./screens/EvaluationScreen";
 import { reports, type ReportData } from "./data/reportData";
+import { courses } from "./data/courseContent";
+import { CourseLanding } from "./components/course/CourseLanding";
+import { ChapterView } from "./components/course/ChapterView";
 
 const STUDENT_NAME = "Student1";
-
-// Course open is a separate brief and not built yet, so it only logs for now.
-function handleOpenCourse(item: CourseItem) {
-  // eslint-disable-next-line no-console
-  console.log("[Talk & Learn] open course:", item.id, item.title);
-}
 
 const statusOrder: Record<LearningStatus, number> = {
   "in-progress": 0,
@@ -38,7 +35,13 @@ const statusOrder: Record<LearningStatus, number> = {
   completed: 2,
 };
 
-type View = "list" | "reading" | "discussion" | "evaluation";
+type View =
+  | "list"
+  | "reading"
+  | "discussion"
+  | "evaluation"
+  | "course-landing"
+  | "course-chapter";
 
 export default function App() {
   // Catalogue is held in state so a session can mark a case In Progress.
@@ -46,6 +49,7 @@ export default function App() {
 
   const [view, setView] = useState<View>("list");
   const [sessionCase, setSessionCase] = useState<CaseStudyItem | null>(null);
+  const [courseId, setCourseId] = useState<string | null>(null);
 
   // Completed reports, keyed by case id. In-memory placeholder; the real
   // product persists these to the backend. Screen 7 (dashboard) will read these;
@@ -180,6 +184,19 @@ export default function App() {
     setView("discussion");
   };
 
+  // Open the course shell (in-depth course landing). Only courses with shell
+  // content open here; others log for now.
+  const openCourse = (course: CourseItem) => {
+    if (courses[course.id]) {
+      setCourseId(course.id);
+      setView("course-landing");
+    } else {
+      // eslint-disable-next-line no-console
+      console.log("[Talk & Learn] open course:", course.id, course.title);
+    }
+  };
+  const activeCourse = courseId ? courses[courseId] : undefined;
+
   // Prototype-only: open the modal in a given state from the Preview control.
   const previewCase = (state: "ready" | "error") => {
     const sample = items.find(isCaseStudy) ?? null;
@@ -216,6 +233,25 @@ export default function App() {
         onBackToCourses={backToList}
         onViewDiscussion={viewDiscussion}
         onReportReady={completeReport}
+      />
+    );
+  }
+
+  if (view === "course-landing" && activeCourse) {
+    return (
+      <CourseLanding
+        course={activeCourse}
+        onBack={backToList}
+        onOpenChapter={() => setView("course-chapter")}
+      />
+    );
+  }
+
+  if (view === "course-chapter" && activeCourse) {
+    return (
+      <ChapterView
+        course={activeCourse}
+        onExit={() => setView("course-landing")}
       />
     );
   }
@@ -270,7 +306,7 @@ export default function App() {
                       </div>
                     ) : (
                       <div key={item.id} className="animate-fade-in">
-                        <CourseCard course={item} onOpen={handleOpenCourse} />
+                        <CourseCard course={item} onOpen={openCourse} />
                       </div>
                     )
                   )}
