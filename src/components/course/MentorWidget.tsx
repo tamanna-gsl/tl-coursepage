@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import type { Mentor } from "../../data/courseContent";
 import { Button } from "../Button";
 import { SwitchIcon, XIcon } from "../icons";
@@ -57,6 +63,50 @@ export function MentorWidget({
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Draggable position. null = default corner (clear of the footer); once
+  // dragged, becomes an explicit top-left in pixels.
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+  const drag = useRef<{
+    sx: number;
+    sy: number;
+    bx: number;
+    by: number;
+    moved: boolean;
+  } | null>(null);
+
+  const onPointerDown = (e: ReactPointerEvent) => {
+    const el = containerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    drag.current = {
+      sx: e.clientX,
+      sy: e.clientY,
+      bx: rect.left,
+      by: rect.top,
+      moved: false,
+    };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+  const onPointerMove = (e: ReactPointerEvent) => {
+    const d = drag.current;
+    if (!d) return;
+    const dx = e.clientX - d.sx;
+    const dy = e.clientY - d.sy;
+    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) d.moved = true;
+    const size = 56;
+    setPos({
+      x: Math.min(Math.max(8, d.bx + dx), window.innerWidth - size - 8),
+      y: Math.min(Math.max(8, d.by + dy), window.innerHeight - size - 8),
+    });
+  };
+  const onPointerUp = () => {
+    const d = drag.current;
+    drag.current = null;
+    if (d && !d.moved) setOpen((o) => !o);
+  };
+
+
   // Seed / reset the greeting when the panel opens or the mentor changes.
   useEffect(() => {
     if (!open) return;
@@ -110,12 +160,16 @@ export function MentorWidget({
   };
 
   return (
-    <>
+    <div
+      ref={containerRef}
+      className={cn("fixed z-50", pos ? "" : "bottom-24 right-6")}
+      style={pos ? { left: pos.x, top: pos.y } : undefined}
+    >
       {open && (
         <div
           role="dialog"
           aria-label={`Chat with ${mentor.name}`}
-          className="fixed bottom-24 right-4 z-50 flex h-[28rem] max-h-[70vh] w-[calc(100vw-2rem)] max-w-sm flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-module sm:right-6"
+          className="fixed inset-x-4 bottom-24 flex h-[28rem] max-h-[70vh] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-module sm:absolute sm:inset-x-auto sm:bottom-16 sm:right-0 sm:w-96"
         >
           <div className="flex items-center gap-3 border-b border-border bg-secondary px-4 py-3 text-secondary-foreground">
             <Avatar mentor={mentor} className="h-9 w-9 ring-2 ring-white/40" />
@@ -234,12 +288,16 @@ export function MentorWidget({
 
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
         aria-expanded={open}
         aria-label={
-          open ? "Close mentor chat" : `Chat with your mentor, ${mentor.name}`
+          open
+            ? "Close mentor chat"
+            : `Chat with your mentor, ${mentor.name}. Drag to move.`
         }
-        className="fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full shadow-module ring-2 ring-card transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="relative h-14 w-14 cursor-grab touch-none rounded-full shadow-module ring-2 ring-card transition-transform hover:scale-105 active:cursor-grabbing focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <Avatar mentor={mentor} className="h-full w-full" />
         <span
@@ -247,6 +305,6 @@ export function MentorWidget({
           aria-hidden
         />
       </button>
-    </>
+    </div>
   );
 }

@@ -58,21 +58,18 @@ export function LessonContent({
 
   if (module.type === "read" && module.read) {
     return (
-      <article className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
+      <article className="mx-auto max-w-4xl px-5 py-8 sm:px-8">
         <h1 className="font-heading text-2xl font-extrabold leading-tight text-foreground sm:text-3xl">
           {module.read.heading}
         </h1>
-        <div className="mt-4 aspect-video w-full overflow-hidden rounded-xl bg-gradient-to-br from-secondary/10 to-primary/10">
+        <div className="mt-5 aspect-video w-full overflow-hidden rounded-xl bg-gradient-to-br from-secondary/10 to-primary/10">
           <div className="flex h-full w-full items-center justify-center text-secondary/40">
-            <PlayIcon className="h-12 w-12" aria-hidden />
+            <PlayIcon className="h-14 w-14" aria-hidden />
           </div>
         </div>
         <div className="mt-6 space-y-4">
           {module.read.paragraphs.map((para, i) => (
-            <p
-              key={i}
-              className="text-[15px] leading-relaxed text-foreground/80"
-            >
+            <p key={i} className="text-base leading-relaxed text-foreground/80">
               {para}
             </p>
           ))}
@@ -89,20 +86,27 @@ export function LessonContent({
       <ChatIcon className="h-8 w-8" aria-hidden />
     );
   return (
-    <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
-      <div className="flex flex-col items-center rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
-        <span className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
-          {placeholderIcon}
-        </span>
-        <h1 className="font-heading text-xl font-bold text-foreground">
-          {module.title}
-        </h1>
-        <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
-          This is a {module.typeLabel} module. Its full experience is built
-          elsewhere in the platform; here it stands in as part of the course
-          frame.
-        </p>
-      </div>
+    <div className="mx-auto flex min-h-full max-w-xl flex-col items-center justify-center px-5 py-12 text-center sm:px-8">
+      <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+        {placeholderIcon}
+      </span>
+      <h1 className="mt-5 font-heading text-2xl font-bold text-foreground">
+        {module.title}
+      </h1>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        This is a {module.typeLabel} module. Its full experience is built
+        elsewhere in the platform; here it stands in as part of the course frame.
+      </p>
+      <Button
+        variant="primary"
+        className="mt-6 !rounded-full"
+        onClick={() => {
+          // eslint-disable-next-line no-console
+          console.log("[Talk & Learn] open module:", module.id);
+        }}
+      >
+        {module.type === "assessment" ? "Start assessment" : "Open chat"}
+      </Button>
     </div>
   );
 }
