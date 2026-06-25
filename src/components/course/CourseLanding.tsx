@@ -207,9 +207,6 @@ export function CourseLanding({
 }) {
   const firstUnlocked = course.chapters.find((c) => !c.locked);
   const totalModules = course.chapters.reduce((s, c) => s + c.moduleCount, 0);
-  const resumeModule =
-    firstUnlocked?.modules?.find((m) => !m.completed) ??
-    firstUnlocked?.modules?.[0];
 
   const stats = [
     { label: `${course.chapters.length} Chapters`, dot: "bg-[hsl(171_100%_45%)]" },
@@ -273,29 +270,9 @@ export function CourseLanding({
               </div>
             </div>
 
-            {/* Right: continue + progress */}
-            <div className="shrink-0 lg:w-72">
-              <div className="flex items-center gap-4">
-                <Button
-                  variant="gradient"
-                  className="!rounded-full"
-                  onClick={() => firstUnlocked && onOpenChapter(firstUnlocked)}
-                >
-                  Continue
-                </Button>
-                {resumeModule && (
-                  <div className="min-w-0">
-                    <p className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
-                      Resume
-                    </p>
-                    <p className="truncate text-sm font-semibold text-foreground">
-                      Chapter 1: {resumeModule.title}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              <div className="mt-4">
+            {/* Right: progress + continue (button on the right) */}
+            <div className="flex shrink-0 items-end gap-4 lg:w-80">
+              <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-semibold text-muted-foreground">
                     Course Progress
@@ -311,6 +288,13 @@ export function CourseLanding({
                   />
                 </div>
               </div>
+              <Button
+                variant="gradient"
+                className="shrink-0 !rounded-full"
+                onClick={() => firstUnlocked && onOpenChapter(firstUnlocked)}
+              >
+                Continue
+              </Button>
             </div>
           </div>
         </section>
