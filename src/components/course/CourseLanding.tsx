@@ -243,35 +243,42 @@ export function CourseLanding({
 
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         {/* Hero (white treatment; gradient reserved for the button and bar) */}
-        <section className="overflow-hidden rounded-2xl border border-border bg-gradient-card p-5 shadow-card sm:p-6">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between lg:gap-10">
-            {/* Left: course identity */}
-            <div className="min-w-0 lg:max-w-xl">
-              <KindLabel kind="in-depth-course" />
-              <h1 className="mt-2 font-heading text-2xl font-extrabold text-secondary sm:text-3xl">
-                {course.title}
-              </h1>
-              <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
-                {course.description}
-              </p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {stats.map((s) => (
+        <section className="relative overflow-hidden rounded-2xl border border-border bg-gradient-card p-5 shadow-card sm:p-6">
+          {/* Faint colour wash for a touch of life on the white */}
+          <div
+            className="pointer-events-none absolute -right-16 -top-24 h-64 w-64 rounded-full bg-primary/10 blur-3xl"
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none absolute -bottom-24 right-1/4 h-56 w-56 rounded-full bg-[hsl(258_100%_70%/0.08)] blur-3xl"
+            aria-hidden
+          />
+
+          <div className="relative">
+            <KindLabel kind="in-depth-course" />
+            <h1 className="mt-2 font-heading text-2xl font-extrabold text-secondary sm:text-3xl">
+              {course.title}
+            </h1>
+            <p className="mt-1.5 line-clamp-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+              {course.description}
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {stats.map((s) => (
+                <span
+                  key={s.label}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground"
+                >
                   <span
-                    key={s.label}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground"
-                  >
-                    <span
-                      className={cn("h-1.5 w-1.5 rounded-full", s.dot)}
-                      aria-hidden
-                    />
-                    {s.label}
-                  </span>
-                ))}
-              </div>
+                    className={cn("h-1.5 w-1.5 rounded-full", s.dot)}
+                    aria-hidden
+                  />
+                  {s.label}
+                </span>
+              ))}
             </div>
 
-            {/* Right: progress + continue (button on the right) */}
-            <div className="flex shrink-0 items-end gap-4 lg:w-80">
+            {/* Foot action row: progress across, Continue on the right */}
+            <div className="mt-5 flex flex-col gap-4 border-t border-border/70 pt-4 sm:flex-row sm:items-center sm:gap-6">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-semibold text-muted-foreground">
@@ -290,7 +297,7 @@ export function CourseLanding({
               </div>
               <Button
                 variant="gradient"
-                className="shrink-0 !rounded-full"
+                className="w-full shrink-0 !rounded-full sm:w-auto sm:min-w-[8rem]"
                 onClick={() => firstUnlocked && onOpenChapter(firstUnlocked)}
               >
                 Continue
