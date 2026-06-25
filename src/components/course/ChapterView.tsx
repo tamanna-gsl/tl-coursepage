@@ -11,21 +11,13 @@ import { ReadingScreen } from "../../screens/ReadingScreen";
 import { DiscussionScreen } from "../../screens/DiscussionScreen";
 import { EvaluationScreen } from "../../screens/EvaluationScreen";
 import { Button } from "../Button";
-import { AlertIcon, ChevronRightIcon, MenuIcon, SwitchIcon, XIcon } from "../icons";
+import { MentorWidget } from "./MentorWidget";
+import { AlertIcon, ChevronRightIcon, MenuIcon, XIcon } from "../icons";
 import { cn } from "../../lib/cn";
 
 // Which phase of the embedded case study session is active (null = not in an
 // active session; the pre-session prompt shows when on the case study step).
 type CaseSession = null | "reading" | "discussion" | "evaluation";
-
-function initials(name: string) {
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-}
 
 function caseItemFor(module: CourseModule | undefined): CaseStudyItem | null {
   if (!module || module.type !== "case-study" || !module.caseId) return null;
@@ -69,7 +61,6 @@ export function ChapterView({
   const currentIndex = modules.findIndex((m) => m.id === currentId);
   const currentModule = modules[currentIndex];
   const percent = completionPercent(modules, completed);
-  const mentor = course.mentors[mentorIndex % course.mentors.length];
 
   const onCaseStudy = currentModule?.type === "case-study";
   const sessionActive = caseSession !== null;
@@ -161,43 +152,6 @@ export function ChapterView({
         ? "Keep going!"
         : "Just getting started!";
 
-  // Mentor lives at the foot of the rail (chapter context), and slides away
-  // with the rail during the case study.
-  const mentorCard = (
-    <div className="shrink-0 border-t border-border p-3">
-      <div className="flex items-center gap-2.5">
-        {mentor.imageUrl ? (
-          <img
-            src={mentor.imageUrl}
-            alt=""
-            className="h-9 w-9 shrink-0 rounded-full object-cover"
-          />
-        ) : (
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-tertiary text-xs font-bold text-foreground">
-            {initials(mentor.name)}
-          </span>
-        )}
-        <div className="min-w-0">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-            Your Mentor
-          </p>
-          <p className="truncate text-sm font-semibold text-foreground">
-            {mentor.name}
-          </p>
-        </div>
-      </div>
-      <Button
-        variant="outline"
-        size="sm"
-        className="mt-2.5 w-full justify-center"
-        onClick={() => setMentorIndex((i) => i + 1)}
-      >
-        <SwitchIcon className="h-4 w-4" />
-        Switch Mentor
-      </Button>
-    </div>
-  );
-
   return (
     <div className="flex h-[100dvh] flex-col bg-background">
       {/* Top bar (minimal course context) */}
@@ -240,10 +194,7 @@ export function ChapterView({
             railCollapsed ? "w-0" : "w-72 border-r border-border"
           )}
         >
-          <div className="flex h-full w-72 flex-col">
-            <div className="min-h-0 flex-1">{rail}</div>
-            {mentorCard}
-          </div>
+          <div className="h-full w-72">{rail}</div>
         </aside>
 
         {/* Content area */}
@@ -307,71 +258,74 @@ export function ChapterView({
               )}
             </div>
           )}
+
+          {/* Foot: navigation grouped left, Chapter Completion right; lives
+              inside the content column so the rail runs full height */}
+          {!onCaseStudy && (
+            <footer className="z-20 shrink-0 border-t border-border bg-card px-4 py-3 sm:px-6">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={goPrev}
+                    disabled={currentIndex <= 0}
+                  >
+                    Previous
+                  </Button>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    className="!rounded-full"
+                    onClick={goNext}
+                    disabled={
+                      currentIndex >= modules.length - 1 &&
+                      completed.has(currentId)
+                    }
+                  >
+                    Next Lesson
+                    <ChevronRightIcon className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                <div className="hidden w-52 shrink-0 sm:block">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-semibold text-muted-foreground">
+                      Chapter Completion
+                    </span>
+                    <span className="font-bold text-foreground">{percent}%</span>
+                  </div>
+                  <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="h-full rounded-full bg-primary transition-[width] duration-500 ease-smooth"
+                      style={{ width: `${percent}%` }}
+                    />
+                  </div>
+                  <p className="mt-0.5 text-right text-[11px] font-semibold text-primary-dark">
+                    {cheer}
+                  </p>
+                </div>
+              </div>
+
+              {/* Completion below the nav on the smallest screens */}
+              <div className="mt-3 sm:hidden">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-muted-foreground">
+                    Chapter Completion
+                  </span>
+                  <span className="font-bold text-foreground">{percent}%</span>
+                </div>
+                <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                  <div
+                    className="h-full rounded-full bg-primary transition-[width] duration-500 ease-smooth"
+                    style={{ width: `${percent}%` }}
+                  />
+                </div>
+              </div>
+            </footer>
+          )}
         </main>
       </div>
-
-      {/* Foot: navigation centred, with a compact Chapter Completion on the
-          right (hidden during the case study) */}
-      {!onCaseStudy && (
-        <footer className="z-20 shrink-0 border-t border-border bg-card px-4 py-3 sm:px-6">
-          <div className="relative flex items-center justify-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={goPrev}
-              disabled={currentIndex <= 0}
-            >
-              Previous
-            </Button>
-            <Button
-              variant="primary"
-              size="sm"
-              className="!rounded-full"
-              onClick={goNext}
-              disabled={
-                currentIndex >= modules.length - 1 && completed.has(currentId)
-              }
-            >
-              Next Lesson
-              <ChevronRightIcon className="h-4 w-4" />
-            </Button>
-
-            <div className="absolute right-0 top-1/2 hidden w-48 -translate-y-1/2 lg:block">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-muted-foreground">
-                  Chapter Completion
-                </span>
-                <span className="font-bold text-foreground">{percent}%</span>
-              </div>
-              <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                <div
-                  className="h-full rounded-full bg-primary transition-[width] duration-500 ease-smooth"
-                  style={{ width: `${percent}%` }}
-                />
-              </div>
-              <p className="mt-0.5 text-[11px] font-semibold text-primary-dark">
-                {cheer}
-              </p>
-            </div>
-          </div>
-
-          {/* Compact completion shown below the nav on narrower screens */}
-          <div className="mx-auto mt-3 max-w-xs lg:hidden">
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-semibold text-muted-foreground">
-                Chapter Completion
-              </span>
-              <span className="font-bold text-foreground">{percent}%</span>
-            </div>
-            <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-              <div
-                className="h-full rounded-full bg-primary transition-[width] duration-500 ease-smooth"
-                style={{ width: `${percent}%` }}
-              />
-            </div>
-          </div>
-        </footer>
-      )}
 
       {/* Mobile rail drawer */}
       {railOpen && (
@@ -396,7 +350,6 @@ export function ChapterView({
               </button>
             </div>
             <div className="min-h-0 flex-1">{rail}</div>
-            {mentorCard}
           </div>
         </div>
       )}
@@ -412,8 +365,17 @@ export function ChapterView({
         </div>
       )}
 
+      {/* Floating mentor presence (steps aside during the case study) */}
+      {!onCaseStudy && (
+        <MentorWidget
+          mentors={course.mentors}
+          activeIndex={mentorIndex}
+          onSwitch={setMentorIndex}
+        />
+      )}
+
       {/* Prototype-only state preview */}
-      <div className="fixed right-3 top-20 z-40 flex items-center gap-1 rounded-full border border-border bg-card/95 p-1 shadow-module backdrop-blur">
+      <div className="fixed left-3 top-20 z-40 flex items-center gap-1 rounded-full border border-border bg-card/95 p-1 shadow-module backdrop-blur">
         <span className="px-2 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
           Module
         </span>
