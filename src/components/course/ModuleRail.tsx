@@ -37,6 +37,7 @@ function statusWord(status: ModuleStatus) {
 // Built so it can collapse (Screen 9) without restructuring.
 export function ModuleRail({
   chapter,
+  chapterNumber,
   otherChapters,
   completed,
   currentId,
@@ -44,6 +45,7 @@ export function ModuleRail({
   onLockedHint,
 }: {
   chapter: Chapter;
+  chapterNumber: number;
   otherChapters: Chapter[];
   completed: Set<string>;
   currentId: string;
@@ -51,14 +53,13 @@ export function ModuleRail({
   onLockedHint: () => void;
 }) {
   const modules = chapter.modules ?? [];
-  const chapterIndex = 1;
 
   return (
     <div className="flex h-full flex-col overflow-y-auto bg-card">
       {/* Active chapter */}
       <div className="border-b border-border px-4 py-4">
         <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
-          Chapter {chapterIndex}
+          Chapter {chapterNumber}
         </p>
         <h2 className="mt-0.5 font-heading text-base font-bold text-foreground">
           {chapter.name}
@@ -119,9 +120,16 @@ export function ModuleRail({
                   >
                     {module.title}
                   </span>
-                  <span className="block text-xs text-muted-foreground">
-                    {module.typeLabel}
-                  </span>
+                  {module.type === "case-study" ? (
+                    <span className="flex items-center gap-1 text-xs font-semibold text-[hsl(319_75%_45%)]">
+                      <SparklesIcon className="h-3 w-3" aria-hidden />
+                      {module.typeLabel}
+                    </span>
+                  ) : (
+                    <span className="block text-xs text-muted-foreground">
+                      {module.typeLabel}
+                    </span>
+                  )}
                 </span>
                 <span className="sr-only">{statusWord(status)}</span>
               </button>
@@ -145,7 +153,7 @@ export function ModuleRail({
             </span>
             <span className="min-w-0 flex-1">
               <span className="block truncate text-sm font-semibold text-muted-foreground">
-                Chapter {chapterIndex + 1 + i}: {ch.name}
+                Chapter {chapterNumber + 1 + i}: {ch.name}
               </span>
               <span className="block text-xs text-muted-foreground">
                 0 of {ch.moduleCount} Modules

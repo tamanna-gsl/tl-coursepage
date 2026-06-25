@@ -17,11 +17,13 @@ export function ReadingScreen({
   onStartDiscussion,
   onSaveExit,
   onBack,
+  embedded = false,
 }: {
   caseStudy: CaseStudyItem;
   onStartDiscussion: (caseStudy: CaseStudyItem) => void;
   onSaveExit: (caseStudy: CaseStudyItem) => void;
   onBack: () => void;
+  embedded?: boolean;
 }) {
   const content = readingContent[caseStudy.id];
   // With in-memory data this is always "ready"; "loading"/"error" are wired so
@@ -42,12 +44,10 @@ export function ReadingScreen({
       const media = navigator.mediaDevices;
       if (!media?.getUserMedia) throw new Error("unsupported");
       const stream = await media.getUserMedia({ audio: true });
-      // Release the mic immediately; the discussion screen will reacquire it.
       stream.getTracks().forEach((t) => t.stop());
       setMic("idle");
       onStartDiscussion(caseStudy);
     } catch {
-      // Denied or blocked: stay on the reading screen and guide the student.
       setMic("denied");
     }
   };
@@ -59,121 +59,128 @@ export function ReadingScreen({
         ? "Try again"
         : "I've read the case. Start Discussion";
 
-  return (
-    <SessionShell title={title} onSaveExit={() => onSaveExit(caseStudy)}>
-      <div className="sticky top-16 z-20 border-b border-border bg-background/90 backdrop-blur">
-        <div className="mx-auto max-w-3xl px-4 py-3 sm:px-6">
-          <ProgressStepper active="reading" />
+  const inner = (
+    <>
+      <div className="shrink-0 border-b border-border bg-background px-4 py-2.5 sm:px-6">
+        <div className="mx-auto max-w-3xl">
+          <ProgressStepper active="reading" compact={embedded} />
         </div>
       </div>
 
       {contentState === "error" || !content ? (
-        <div className="mx-auto flex max-w-3xl flex-col items-center px-4 py-20 text-center sm:px-6">
-          <span className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10 text-destructive">
-            <AlertIcon className="h-8 w-8" />
-          </span>
-          <h1 className="font-heading text-xl font-bold text-foreground">
-            We could not open this case
-          </h1>
-          <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
-            This case study is unavailable right now. Please head back to your
-            library and try again in a little while.
-          </p>
-          <Button className="mt-6 !rounded-full" onClick={onBack}>
-            Back to library
-          </Button>
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <div className="mx-auto flex max-w-3xl flex-col items-center px-4 py-20 text-center sm:px-6">
+            <span className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10 text-destructive">
+              <AlertIcon className="h-8 w-8" />
+            </span>
+            <h1 className="font-heading text-xl font-bold text-foreground">
+              We could not open this case
+            </h1>
+            <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
+              This case study is unavailable right now. Please go back and try
+              again in a little while.
+            </p>
+            <Button className="mt-6 !rounded-full" onClick={onBack}>
+              {embedded ? "Back to chapter" : "Back to library"}
+            </Button>
+          </div>
         </div>
       ) : contentState === "loading" ? (
-        <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6" aria-hidden>
-          <div className="skeleton h-9 w-3/4 rounded-md" />
-          <div className="mt-4 flex gap-2">
-            <div className="skeleton h-6 w-28 rounded-full" />
-            <div className="skeleton h-6 w-16 rounded-full" />
-          </div>
-          <div className="mt-8 space-y-3">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div
-                key={i}
-                className={cn("skeleton h-4 rounded", i % 4 === 3 ? "w-2/3" : "w-full")}
-              />
-            ))}
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6" aria-hidden>
+            <div className="skeleton h-9 w-3/4 rounded-md" />
+            <div className="mt-4 flex gap-2">
+              <div className="skeleton h-6 w-28 rounded-full" />
+              <div className="skeleton h-6 w-16 rounded-full" />
+            </div>
+            <div className="mt-8 space-y-3">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div
+                  key={i}
+                  className={cn(
+                    "skeleton h-4 rounded",
+                    i % 4 === 3 ? "w-2/3" : "w-full"
+                  )}
+                />
+              ))}
+            </div>
           </div>
         </div>
       ) : (
         <>
-          <article className="mx-auto max-w-3xl px-4 pb-44 pt-6 sm:px-6 sm:pb-40">
-            <h1 className="font-heading text-3xl font-extrabold leading-tight text-secondary sm:text-4xl">
-              {caseStudy.title} - {caseStudy.subject}
-            </h1>
-            <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
-              <Chip kind="case-study">{caseStudy.subject}</Chip>
-              <span className="text-muted-foreground" aria-hidden>
-                &middot;
-              </span>
-              <span className="text-muted-foreground">
-                {formatDuration(caseStudy.durationMinutes)}
-              </span>
-            </div>
-
-            <div className="mt-8">
-              <h2 className="font-heading text-xl font-bold text-secondary">
-                {content.title}
-              </h2>
-              <div className="mt-5 space-y-6">
-                {content.sections.map((section) => (
-                  <section key={section.heading}>
-                    <h3 className="font-heading text-base font-bold text-foreground">
-                      {section.heading}
-                    </h3>
-                    <div className="mt-2 space-y-3">
-                      {section.paragraphs.map((para, i) => (
-                        <p
-                          key={i}
-                          className="text-[15px] leading-relaxed text-foreground/80"
-                        >
-                          {para}
-                        </p>
-                      ))}
-                    </div>
-                  </section>
-                ))}
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            <article className="mx-auto max-w-3xl px-4 py-6 sm:px-6">
+              <h1 className="font-heading text-3xl font-extrabold leading-tight text-secondary sm:text-4xl">
+                {caseStudy.title} - {caseStudy.subject}
+              </h1>
+              <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
+                <Chip kind="case-study">{caseStudy.subject}</Chip>
+                <span className="text-muted-foreground" aria-hidden>
+                  &middot;
+                </span>
+                <span className="text-muted-foreground">
+                  {formatDuration(caseStudy.durationMinutes)}
+                </span>
               </div>
-            </div>
-          </article>
 
-          <div className="sticky bottom-0 z-20 border-t border-border bg-background/92 backdrop-blur">
-            <div className="mx-auto max-w-3xl px-4 py-4 sm:px-6">
-              {mic === "denied" && (
-                <div
-                  role="alert"
-                  className="mb-3 flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-left"
-                >
-                  <span className="mt-0.5 shrink-0 text-destructive">
-                    <MicOffIcon className="h-5 w-5" />
-                  </span>
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">
-                      The discussion needs microphone access
-                    </p>
-                    <p className="mt-0.5 text-sm text-muted-foreground">
-                      Please allow the microphone in your browser's site
-                      settings, then try again.
-                    </p>
-                  </div>
+              <div className="mt-8">
+                <h2 className="font-heading text-xl font-bold text-secondary">
+                  {content.title}
+                </h2>
+                <div className="mt-5 space-y-6">
+                  {content.sections.map((section) => (
+                    <section key={section.heading}>
+                      <h3 className="font-heading text-base font-bold text-foreground">
+                        {section.heading}
+                      </h3>
+                      <div className="mt-2 space-y-3">
+                        {section.paragraphs.map((para, i) => (
+                          <p
+                            key={i}
+                            className="text-[15px] leading-relaxed text-foreground/80"
+                          >
+                            {para}
+                          </p>
+                        ))}
+                      </div>
+                    </section>
+                  ))}
                 </div>
-              )}
-              <div className="flex justify-center">
-                <Button
-                  variant="primary"
-                  className="w-full !rounded-full sm:w-auto sm:min-w-[20rem]"
-                  onClick={startDiscussion}
-                  disabled={mic === "pending"}
-                  aria-busy={mic === "pending"}
-                >
-                  {buttonLabel}
-                  {mic !== "pending" && <ArrowRightIcon className="h-4 w-4" />}
-                </Button>
               </div>
+            </article>
+          </div>
+
+          <div className="shrink-0 border-t border-border bg-card px-4 py-4 sm:px-6">
+            {mic === "denied" && (
+              <div
+                role="alert"
+                className="mx-auto mb-3 flex max-w-3xl items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-left"
+              >
+                <span className="mt-0.5 shrink-0 text-destructive">
+                  <MicOffIcon className="h-5 w-5" />
+                </span>
+                <div>
+                  <p className="text-sm font-semibold text-foreground">
+                    The discussion needs microphone access
+                  </p>
+                  <p className="mt-0.5 text-sm text-muted-foreground">
+                    Please allow the microphone in your browser's site settings,
+                    then try again.
+                  </p>
+                </div>
+              </div>
+            )}
+            <div className="flex justify-center">
+              <Button
+                variant="primary"
+                className="w-full !rounded-full sm:w-auto sm:min-w-[20rem]"
+                onClick={startDiscussion}
+                disabled={mic === "pending"}
+                aria-busy={mic === "pending"}
+              >
+                {buttonLabel}
+                {mic !== "pending" && <ArrowRightIcon className="h-4 w-4" />}
+              </Button>
             </div>
           </div>
         </>
@@ -185,6 +192,15 @@ export function ReadingScreen({
         mic={mic}
         onMic={setMic}
       />
+    </>
+  );
+
+  if (embedded) {
+    return <div className="flex h-full flex-col">{inner}</div>;
+  }
+  return (
+    <SessionShell title={title} onSaveExit={() => onSaveExit(caseStudy)}>
+      {inner}
     </SessionShell>
   );
 }

@@ -23,6 +23,8 @@ export interface CourseModule {
   /** Initial completion state for the prototype. */
   completed?: boolean;
   read?: ReadContent;
+  /** For a case-study module: the case id, so it reuses the session content. */
+  caseId?: string;
 }
 
 export interface Chapter {
@@ -91,6 +93,56 @@ const chapterOneModules: CourseModule[] = [
   },
 ];
 
+const chapterFourModules: CourseModule[] = [
+  {
+    id: "ch4-overview",
+    title: "Chapter Overview",
+    type: "read",
+    typeLabel: "Read",
+    completed: true,
+    read: {
+      heading: "Pathway to Plan: turning ideas into structured plans",
+      paragraphs: [
+        "A good idea is only the start. To make it real, an entrepreneur shapes it into a plan: a clear set of steps that turns a rough thought into something you can act on and share with others.",
+        "In this chapter you will learn how to define and organise your ideas, understand simple planning frameworks, and build structured approaches that move you from thinking to doing.",
+      ],
+    },
+  },
+  {
+    id: "ch4-frameworks",
+    title: "Planning Frameworks",
+    type: "read",
+    typeLabel: "Watch",
+    completed: true,
+    read: {
+      heading: "Simple frameworks for planning",
+      paragraphs: [
+        "Frameworks are just helpful templates for thinking. They break a big task into smaller parts so nothing important is missed, and they make it easier to explain your plan to a mentor or a teammate.",
+        "Watch how a founder lays out their goals, the steps to reach them, and the resources they will need, then keep these in mind as you study the case that follows.",
+      ],
+    },
+  },
+  {
+    id: "ch4-case",
+    title: "The Nykaa Story",
+    type: "case-study",
+    typeLabel: "Case Study",
+    caseId: "nykaa-story",
+  },
+  {
+    id: "ch4-doubt",
+    title: "Doubt Solving Session",
+    type: "chat",
+    typeLabel: "Chat",
+  },
+  {
+    id: "ch4-assessment",
+    title: "Assessment",
+    type: "assessment",
+    typeLabel: "Assessment",
+  },
+];
+
 export const entrepreneurshipCourse: Course = {
   id: "entrepreneurship-101",
   title: "Entrepreneurship Level 1",
@@ -148,8 +200,11 @@ export const entrepreneurshipCourse: Course = {
         "Build structured approaches to execution",
       ],
       moduleCount: 5,
-      locked: true,
+      // Unlocked in the prototype so the embedded case study is reachable for
+      // review; in the real product it gates behind the earlier chapters.
+      locked: false,
       hasCaseStudy: true,
+      modules: chapterFourModules,
     },
     {
       id: "ch5",

@@ -18,8 +18,8 @@ export function SessionShell({
   children: ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-30 border-b border-border bg-card">
+    <div className="flex h-[100dvh] flex-col bg-background">
+      <header className="z-30 shrink-0 border-b border-border bg-card">
         <div className="mx-auto grid h-16 max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-3 px-4 sm:gap-4 sm:px-6 lg:px-8">
           <GetSetLearnLogo />
           <p
@@ -38,7 +38,7 @@ export function SessionShell({
         </div>
       </header>
 
-      {children}
+      <div className="flex min-h-0 flex-1 flex-col">{children}</div>
     </div>
   );
 }

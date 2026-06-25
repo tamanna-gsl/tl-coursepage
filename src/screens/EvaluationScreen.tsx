@@ -16,14 +16,17 @@ export function EvaluationScreen({
   onBackToCourses,
   onViewDiscussion,
   onReportReady,
+  embedded = false,
 }: {
   caseStudy: CaseStudyItem;
   report: ReportData | undefined;
   onBackToCourses: () => void;
   onViewDiscussion: (caseStudy: CaseStudyItem) => void;
   onReportReady: (caseStudy: CaseStudyItem) => void;
+  embedded?: boolean;
 }) {
   const title = `${caseStudy.title} - ${caseStudy.subject}`;
+  const backLabel = embedded ? "Back to Chapter" : "Back to Courses";
   const [state, setState] = useState<ReportState>(
     report ? "generating" : "error"
   );
@@ -45,101 +48,112 @@ export function EvaluationScreen({
     }
   }, [state, caseStudy, onReportReady]);
 
-  const backAction = (
-    <Button variant="primary" size="sm" onClick={onBackToCourses}>
-      Back to Courses
-    </Button>
-  );
-
-  return (
-    <SessionShell title={title} action={backAction}>
-      <div className="sticky top-16 z-20 border-b border-border bg-background/90 px-4 py-3 backdrop-blur sm:px-6">
+  const inner = (
+    <>
+      <div className="shrink-0 border-b border-border bg-background px-4 py-2.5 sm:px-6">
         <div className="mx-auto max-w-3xl">
-          <ProgressStepper active="evaluation" />
+          <ProgressStepper active="evaluation" compact={embedded} />
         </div>
       </div>
 
-      {state === "generating" && (
-        <div
-          role="status"
-          aria-live="polite"
-          className="mx-auto flex max-w-3xl flex-col items-center px-4 py-24 text-center"
-        >
-          <span
-            className="h-12 w-12 animate-spin rounded-full border-4 border-muted border-t-primary"
-            aria-hidden
-          />
-          <p className="mt-4 font-heading text-lg font-bold text-foreground">
-            Generating your report
-          </p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            This will only take a moment.
-          </p>
-        </div>
-      )}
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        {state === "generating" && (
+          <div
+            role="status"
+            aria-live="polite"
+            className="mx-auto flex max-w-3xl flex-col items-center px-4 py-24 text-center"
+          >
+            <span
+              className="h-12 w-12 animate-spin rounded-full border-4 border-muted border-t-primary"
+              aria-hidden
+            />
+            <p className="mt-4 font-heading text-lg font-bold text-foreground">
+              Generating your report
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              This will only take a moment.
+            </p>
+          </div>
+        )}
 
-      {state === "error" && (
-        <div
-          role="alert"
-          className="mx-auto flex max-w-3xl flex-col items-center px-4 py-24 text-center"
-        >
-          <span className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10 text-destructive">
-            <AlertIcon className="h-8 w-8" />
-          </span>
-          <h1 className="font-heading text-xl font-bold text-foreground">
-            We could not produce your report
-          </h1>
-          <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
-            Something went wrong while preparing your performance evaluation.
-            Your discussion is safe. Please head back to your courses and try
-            again shortly.
-          </p>
-          <Button className="mt-6 !rounded-full" onClick={onBackToCourses}>
-            Back to Courses
-          </Button>
-        </div>
-      )}
+        {state === "error" && (
+          <div
+            role="alert"
+            className="mx-auto flex max-w-3xl flex-col items-center px-4 py-24 text-center"
+          >
+            <span className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10 text-destructive">
+              <AlertIcon className="h-8 w-8" />
+            </span>
+            <h1 className="font-heading text-xl font-bold text-foreground">
+              We could not produce your report
+            </h1>
+            <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
+              Something went wrong while preparing your performance evaluation.
+              Your discussion is safe. Please go back and try again shortly.
+            </p>
+            <Button className="mt-6 !rounded-full" onClick={onBackToCourses}>
+              {backLabel}
+            </Button>
+          </div>
+        )}
 
-      {state === "ready" && report && (
-        <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-          <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <h1 className="font-heading text-3xl font-extrabold text-secondary sm:text-4xl">
-                Performance Evaluation
-              </h1>
-              <p className="mt-1.5 text-sm text-muted-foreground">
-                Here is your detailed feedback and score for this case study
-                session.
-              </p>
+        {state === "ready" && report && (
+          <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+            <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <h1 className="font-heading text-3xl font-extrabold text-secondary sm:text-4xl">
+                  Performance Evaluation
+                </h1>
+                <p className="mt-1.5 text-sm text-muted-foreground">
+                  Here is your detailed feedback and score for this case study
+                  session.
+                </p>
+              </div>
+              <Button
+                variant="primary"
+                className="shrink-0 !rounded-full"
+                onClick={() => onViewDiscussion(caseStudy)}
+              >
+                <ChatIcon className="h-4 w-4" />
+                View Discussion
+              </Button>
+            </header>
+
+            <div className="mt-8">
+              <ReportBody report={report} />
             </div>
-            <Button
-              variant="primary"
-              className="shrink-0 !rounded-full"
-              onClick={() => onViewDiscussion(caseStudy)}
-            >
-              <ChatIcon className="h-4 w-4" />
-              View Discussion
-            </Button>
-          </header>
 
-          <div className="mt-8">
-            <ReportBody report={report} />
+            <div className="mt-10 flex justify-center border-t border-border pt-8">
+              <Button
+                variant="primary"
+                className="!rounded-full"
+                onClick={onBackToCourses}
+              >
+                {backLabel}
+                <ArrowRightIcon className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
-
-          <div className="mt-10 flex justify-center border-t border-border pt-8">
-            <Button
-              variant="primary"
-              className="!rounded-full"
-              onClick={onBackToCourses}
-            >
-              Back to Courses
-              <ArrowRightIcon className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
 
       <EvaluationDevControls state={state} onState={setState} />
+    </>
+  );
+
+  if (embedded) {
+    return <div className="flex h-full flex-col">{inner}</div>;
+  }
+  return (
+    <SessionShell
+      title={title}
+      action={
+        <Button variant="primary" size="sm" onClick={onBackToCourses}>
+          Back to Courses
+        </Button>
+      }
+    >
+      {inner}
     </SessionShell>
   );
 }

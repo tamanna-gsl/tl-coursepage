@@ -1,11 +1,22 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Course, CourseModule } from "../../data/courseContent";
+import { reports } from "../../data/reportData";
+import { catalogue } from "../../data/catalogue";
+import { isCaseStudy, type CaseStudyItem } from "../../types";
 import { completionPercent } from "./progress";
 import { ModuleRail } from "./ModuleRail";
 import { LessonContent, type ContentState } from "./LessonContent";
+import { PreSessionContent } from "../PreSessionContent";
+import { ReadingScreen } from "../../screens/ReadingScreen";
+import { DiscussionScreen } from "../../screens/DiscussionScreen";
+import { EvaluationScreen } from "../../screens/EvaluationScreen";
 import { Button } from "../Button";
-import { ChevronRightIcon, MenuIcon, SwitchIcon, XIcon } from "../icons";
+import { AlertIcon, ChevronRightIcon, MenuIcon, SwitchIcon, XIcon } from "../icons";
 import { cn } from "../../lib/cn";
+
+// Which phase of the embedded case study session is active (null = not in an
+// active session; the pre-session prompt shows when on the case study step).
+type CaseSession = null | "reading" | "discussion" | "evaluation";
 
 function initials(name: string) {
   return name
@@ -16,18 +27,31 @@ function initials(name: string) {
     .toUpperCase();
 }
 
-// View B: the in-chapter lesson view. Rail + content + progress + navigation,
-// built so Screen 9 can collapse the rail and expand the content.
+function caseItemFor(module: CourseModule | undefined): CaseStudyItem | null {
+  if (!module || module.type !== "case-study" || !module.caseId) return null;
+  const found = catalogue.find((i) => i.id === module.caseId);
+  return found && isCaseStudy(found) ? found : null;
+}
+
+// View B + the embedded case study (Screen 9). Reuses the Screen 4-6 session
+// components inside the course frame, with a two-phase reveal: the pre-session
+// prompt shows inline with the rail visible, then on Start Session the rail
+// collapses and the session takes the freed space.
 export function ChapterView({
   course,
+  chapterIndex,
   onExit,
+  onCaseReportReady,
 }: {
   course: Course;
+  chapterIndex: number;
   onExit: () => void;
+  onCaseReportReady: (caseStudy: CaseStudyItem) => void;
 }) {
-  const chapter = course.chapters[0];
+  const chapter = course.chapters[chapterIndex];
+  const chapterNumber = chapterIndex + 1;
   const modules = useMemo(() => chapter.modules ?? [], [chapter]);
-  const otherChapters = course.chapters.slice(1);
+  const otherChapters = course.chapters.slice(chapterIndex + 1);
 
   const [completed, setCompleted] = useState<Set<string>>(
     () => new Set(modules.filter((m) => m.completed).map((m) => m.id))
@@ -36,6 +60,8 @@ export function ChapterView({
     () => modules.find((m) => !m.completed)?.id ?? modules[0].id
   );
   const [contentState, setContentState] = useState<ContentState>("ready");
+  const [caseSession, setCaseSession] = useState<CaseSession>(null);
+  const [caseError, setCaseError] = useState(false);
   const [mentorIndex, setMentorIndex] = useState(0);
   const [railOpen, setRailOpen] = useState(false);
   const [hint, setHint] = useState<string | null>(null);
@@ -45,6 +71,27 @@ export function ChapterView({
   const percent = completionPercent(modules, completed);
   const mentor = course.mentors[mentorIndex % course.mentors.length];
 
+  const onCaseStudy = currentModule?.type === "case-study";
+  const sessionActive = caseSession !== null;
+  const railCollapsed = sessionActive;
+  const caseItem = caseItemFor(currentModule);
+
+  const railRef = useRef<HTMLElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+
+  // Remove the collapsed rail from the tab order / assistive tech.
+  useEffect(() => {
+    const el = railRef.current;
+    if (!el) return;
+    if (railCollapsed) el.setAttribute("inert", "");
+    else el.removeAttribute("inert");
+  }, [railCollapsed]);
+
+  // Move focus into the content area as the phase changes.
+  useEffect(() => {
+    stageRef.current?.focus();
+  }, [caseSession, currentId]);
+
   const showHint = (msg: string) => {
     setHint(msg);
     window.setTimeout(() => setHint(null), 2200);
@@ -53,22 +100,52 @@ export function ChapterView({
   const selectModule = (module: CourseModule) => {
     setCurrentId(module.id);
     setContentState("ready");
+    setCaseSession(null);
+    setCaseError(false);
     setRailOpen(false);
   };
 
   const goNext = () => {
     setCompleted((prev) => new Set(prev).add(currentId));
     const next = modules[currentIndex + 1];
-    if (next) setCurrentId(next.id);
+    if (next) {
+      setCurrentId(next.id);
+      setCaseSession(null);
+    }
   };
   const goPrev = () => {
     const prev = modules[currentIndex - 1];
+    if (prev) {
+      setCurrentId(prev.id);
+      setCaseSession(null);
+    }
+  };
+
+  // Case study session transitions.
+  const startSession = () => setCaseSession("reading");
+  const cancelPreSession = () => {
+    // Return the content area to the previous module, nothing lost.
+    const prev = modules[currentIndex - 1];
     if (prev) setCurrentId(prev.id);
+    setCaseSession(null);
+  };
+  // Exit the case study back to the chapter, rail restored. The step stays the
+  // current (in progress) module. Re-entry restarts (placeholder pending the
+  // platform's real resume-versus-restart behaviour).
+  const exitSession = () => setCaseSession(null);
+  // Complete the case study and return to the chapter: tick the step, advance,
+  // and unlock the next module.
+  const completeCaseStudy = () => {
+    setCompleted((prev) => new Set(prev).add(currentId));
+    const next = modules[currentIndex + 1];
+    if (next) setCurrentId(next.id);
+    setCaseSession(null);
   };
 
   const rail = (
     <ModuleRail
       chapter={chapter}
+      chapterNumber={chapterNumber}
       otherChapters={otherChapters}
       completed={completed}
       currentId={currentId}
@@ -79,17 +156,19 @@ export function ChapterView({
 
   return (
     <div className="flex h-[100dvh] flex-col bg-background">
-      {/* Top bar */}
+      {/* Top bar (minimal course context) */}
       <header className="z-30 flex shrink-0 items-center justify-between gap-3 border-b border-border bg-card px-4 sm:px-6">
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setRailOpen(true)}
-            aria-label="Open module list"
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:hidden"
-          >
-            <MenuIcon className="h-5 w-5" />
-          </button>
+          {!sessionActive && (
+            <button
+              type="button"
+              onClick={() => setRailOpen(true)}
+              aria-label="Open module list"
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:hidden"
+            >
+              <MenuIcon className="h-5 w-5" />
+            </button>
+          )}
           <span className="hidden text-sm font-bold text-foreground md:block md:w-72">
             Course Content
           </span>
@@ -97,98 +176,165 @@ export function ChapterView({
         <p className="truncate text-center text-sm font-bold text-secondary sm:text-base">
           {course.title}
         </p>
-        <Button variant="outline" size="sm" onClick={onExit}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={sessionActive ? exitSession : onExit}
+        >
           <XIcon className="h-4 w-4" />
-          Exit
+          {sessionActive ? "Exit Case Study" : "Exit"}
         </Button>
       </header>
 
       <div className="flex min-h-0 flex-1">
-        {/* Desktop rail */}
-        <aside className="hidden w-72 shrink-0 border-r border-border md:block">
+        {/* Desktop rail (collapses during the session) */}
+        <aside
+          ref={railRef}
+          aria-hidden={railCollapsed || undefined}
+          className={cn(
+            "hidden shrink-0 overflow-hidden transition-[width] duration-500 ease-smooth motion-reduce:transition-none md:block",
+            railCollapsed ? "w-0" : "w-72 border-r border-border"
+          )}
+        >
           {rail}
         </aside>
 
-        {/* Content */}
-        <main className="flex min-h-0 flex-1 flex-col">
-          {/* Mentor presence */}
-          <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border bg-card/60 px-4 py-2.5 sm:px-6">
-            <div className="flex min-w-0 items-center gap-2.5">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-tertiary text-xs font-bold text-foreground">
-                {initials(mentor.name)}
-              </span>
-              <span className="min-w-0">
-                <span className="block text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                  Your Mentor
-                </span>
-                <span className="block truncate text-sm font-semibold text-foreground">
-                  {mentor.name}
-                </span>
-              </span>
+        {/* Content area */}
+        <main
+          ref={stageRef}
+          tabIndex={-1}
+          className="relative flex min-h-0 flex-1 flex-col outline-none"
+        >
+          {onCaseStudy && !caseItem ? (
+            <CaseUnavailable onBack={cancelPreSession} />
+          ) : sessionActive && caseItem ? (
+            <div className="min-h-0 flex-1">
+              {caseSession === "reading" && (
+                <ReadingScreen
+                  embedded
+                  caseStudy={caseItem}
+                  onStartDiscussion={() => setCaseSession("discussion")}
+                  onSaveExit={exitSession}
+                  onBack={exitSession}
+                />
+              )}
+              {caseSession === "discussion" && (
+                <DiscussionScreen
+                  embedded
+                  caseStudy={caseItem}
+                  onEndDiscussion={() => setCaseSession("evaluation")}
+                  onSaveExit={exitSession}
+                />
+              )}
+              {caseSession === "evaluation" && (
+                <EvaluationScreen
+                  embedded
+                  caseStudy={caseItem}
+                  report={reports[caseItem.id]}
+                  onBackToCourses={completeCaseStudy}
+                  onViewDiscussion={() => setCaseSession("discussion")}
+                  onReportReady={onCaseReportReady}
+                />
+              )}
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setMentorIndex((i) => i + 1)}
-            >
-              <SwitchIcon className="h-4 w-4" />
-              <span className="hidden sm:inline">Switch Mentor</span>
-            </Button>
-          </div>
+          ) : (
+            <>
+              {!onCaseStudy && (
+                <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border bg-card/60 px-4 py-2.5 sm:px-6">
+                  <div className="flex min-w-0 items-center gap-2.5">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-tertiary text-xs font-bold text-foreground">
+                      {initials(mentor.name)}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                        Your Mentor
+                      </span>
+                      <span className="block truncate text-sm font-semibold text-foreground">
+                        {mentor.name}
+                      </span>
+                    </span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setMentorIndex((i) => i + 1)}
+                  >
+                    <SwitchIcon className="h-4 w-4" />
+                    <span className="hidden sm:inline">Switch Mentor</span>
+                  </Button>
+                </div>
+              )}
 
-          <div className="min-h-0 flex-1 overflow-y-auto">
-            <LessonContent
-              module={currentModule}
-              state={contentState}
-              onBack={onExit}
-            />
-          </div>
+              <div className="min-h-0 flex-1 overflow-y-auto">
+                {onCaseStudy && caseItem ? (
+                  <div className="mx-auto max-w-2xl p-4 sm:p-6">
+                    <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
+                      <PreSessionContent
+                        state={caseError ? "error" : "ready"}
+                        caseStudy={caseItem}
+                        onClose={cancelPreSession}
+                        onStart={startSession}
+                        errorBackLabel="Back to chapter"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <LessonContent
+                    module={currentModule}
+                    state={contentState}
+                    onBack={onExit}
+                  />
+                )}
+              </div>
+            </>
+          )}
         </main>
       </div>
 
-      {/* Foot: navigation + progress */}
-      <footer className="z-20 shrink-0 border-t border-border bg-card px-4 py-3 sm:px-6">
-        <div className="flex items-center justify-between gap-3">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={goPrev}
-            disabled={currentIndex <= 0}
-          >
-            Previous
-          </Button>
-
-          <Button
-            variant="primary"
-            size="sm"
-            className="!rounded-full"
-            onClick={goNext}
-            disabled={currentIndex >= modules.length - 1 && completed.has(currentId)}
-          >
-            Next Lesson
-            <ChevronRightIcon className="h-4 w-4" />
-          </Button>
-
-          <div className="hidden min-w-[12rem] sm:block">
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-semibold text-muted-foreground">
-                Chapter Completion
-              </span>
-              <span className="font-bold text-foreground">{percent}%</span>
-            </div>
-            <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-              <div
-                className="h-full rounded-full bg-primary transition-[width] duration-500 ease-smooth"
-                style={{ width: `${percent}%` }}
-              />
+      {/* Foot: navigation + progress (hidden during the case study) */}
+      {!onCaseStudy && (
+        <footer className="z-20 shrink-0 border-t border-border bg-card px-4 py-3 sm:px-6">
+          <div className="flex items-center justify-between gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={goPrev}
+              disabled={currentIndex <= 0}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              className="!rounded-full"
+              onClick={goNext}
+              disabled={
+                currentIndex >= modules.length - 1 && completed.has(currentId)
+              }
+            >
+              Next Lesson
+              <ChevronRightIcon className="h-4 w-4" />
+            </Button>
+            <div className="hidden min-w-[12rem] sm:block">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-semibold text-muted-foreground">
+                  Chapter Completion
+                </span>
+                <span className="font-bold text-foreground">{percent}%</span>
+              </div>
+              <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                <div
+                  className="h-full rounded-full bg-primary transition-[width] duration-500 ease-smooth"
+                  style={{ width: `${percent}%` }}
+                />
+              </div>
             </div>
           </div>
-        </div>
-        {/* Mobile completion line */}
-        <p className="mt-2 text-center text-xs font-semibold text-muted-foreground sm:hidden">
-          Chapter Completion {percent}%
-        </p>
-      </footer>
+          <p className="mt-2 text-center text-xs font-semibold text-muted-foreground sm:hidden">
+            Chapter Completion {percent}%
+          </p>
+        </footer>
+      )}
 
       {/* Mobile rail drawer */}
       {railOpen && (
@@ -229,25 +375,62 @@ export function ChapterView({
       )}
 
       {/* Prototype-only state preview */}
-      <div className="fixed bottom-3 left-3 z-40 flex items-center gap-1 rounded-full border border-border bg-card/95 p-1 shadow-module backdrop-blur">
+      <div className="fixed bottom-3 right-3 z-40 flex items-center gap-1 rounded-full border border-border bg-card/95 p-1 shadow-module backdrop-blur">
         <span className="px-2 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
           Module
         </span>
-        {(["ready", "loading", "error"] as ContentState[]).map((s) => (
+        {onCaseStudy ? (
           <button
-            key={s}
-            onClick={() => setContentState(s)}
+            onClick={() => setCaseError((v) => !v)}
             className={cn(
-              "rounded-full px-2.5 py-1 text-xs font-semibold capitalize transition-colors",
-              contentState === s
-                ? "bg-secondary text-secondary-foreground"
+              "rounded-full px-2.5 py-1 text-xs font-semibold transition-colors",
+              caseError
+                ? "bg-destructive text-destructive-foreground"
                 : "text-muted-foreground hover:bg-muted"
             )}
           >
-            {s === "ready" ? "Default" : s}
+            Case error
           </button>
-        ))}
+        ) : (
+          (["ready", "loading", "error"] as ContentState[]).map((s) => (
+            <button
+              key={s}
+              onClick={() => setContentState(s)}
+              className={cn(
+                "rounded-full px-2.5 py-1 text-xs font-semibold capitalize transition-colors",
+                contentState === s
+                  ? "bg-secondary text-secondary-foreground"
+                  : "text-muted-foreground hover:bg-muted"
+              )}
+            >
+              {s === "ready" ? "Default" : s}
+            </button>
+          ))
+        )}
       </div>
+    </div>
+  );
+}
+
+function CaseUnavailable({ onBack }: { onBack: () => void }) {
+  return (
+    <div
+      role="alert"
+      className="mx-auto flex max-w-md flex-col items-center px-4 py-20 text-center"
+    >
+      <span className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10 text-destructive">
+        <AlertIcon className="h-8 w-8" />
+      </span>
+      <h1 className="font-heading text-xl font-bold text-foreground">
+        We could not open this case
+      </h1>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        This case study is unavailable right now. Please go back and try again
+        shortly.
+      </p>
+      <Button className="mt-6 !rounded-full" onClick={onBack}>
+        Back to chapter
+      </Button>
     </div>
   );
 }

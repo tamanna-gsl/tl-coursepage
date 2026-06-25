@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type ReactNode,
+} from "react";
 import type { CaseStudyItem } from "../types";
 import {
   discussionScripts,
@@ -37,10 +43,12 @@ export function DiscussionScreen({
   caseStudy,
   onEndDiscussion,
   onSaveExit,
+  embedded = false,
 }: {
   caseStudy: CaseStudyItem;
   onEndDiscussion: (caseStudy: CaseStudyItem) => void;
   onSaveExit: (caseStudy: CaseStudyItem) => void;
+  embedded?: boolean;
 }) {
   const script = discussionScripts[caseStudy.id] ?? [];
   const title = `${caseStudy.title} - ${caseStudy.subject}`;
@@ -266,14 +274,22 @@ export function DiscussionScreen({
     startConversation();
   };
 
+  const Frame = embedded
+    ? ({ children }: { children: ReactNode }) => <>{children}</>
+    : ({ children }: { children: ReactNode }) => (
+        <SessionShell title={title} onSaveExit={() => onSaveExit(caseStudy)}>
+          {children}
+        </SessionShell>
+      );
+
   return (
-    <SessionShell title={title} onSaveExit={() => onSaveExit(caseStudy)}>
-      <div className="flex h-[calc(100dvh-4rem)] flex-col">
+    <Frame>
+      <div className="flex h-full flex-col">
         {/* Stepper kept at the same width as the reading screen (max-w-3xl)
             so it does not change size on the transition between screens. */}
-        <div className="shrink-0 border-b border-border bg-background/90 px-4 py-3 backdrop-blur sm:px-6">
+        <div className="shrink-0 border-b border-border bg-background/90 px-4 py-2.5 backdrop-blur sm:px-6">
           <div className="mx-auto max-w-3xl">
-            <ProgressStepper active="discussion" />
+            <ProgressStepper active="discussion" compact={embedded} />
           </div>
         </div>
 
@@ -542,7 +558,7 @@ export function DiscussionScreen({
         onMicLost={handleMicLost}
         onRestart={restart}
       />
-    </SessionShell>
+    </Frame>
   );
 }
 

@@ -50,6 +50,7 @@ export default function App() {
   const [view, setView] = useState<View>("list");
   const [sessionCase, setSessionCase] = useState<CaseStudyItem | null>(null);
   const [courseId, setCourseId] = useState<string | null>(null);
+  const [chapterIndex, setChapterIndex] = useState(0);
 
   // Completed reports, keyed by case id. In-memory placeholder; the real
   // product persists these to the backend. Screen 7 (dashboard) will read these;
@@ -197,6 +198,13 @@ export default function App() {
   };
   const activeCourse = courseId ? courses[courseId] : undefined;
 
+  // Embedded case study report ready: persist to the same store the dashboard
+  // reads (in-memory placeholder; real product persists to the backend).
+  const saveCaseReport = (caseStudy: CaseStudyItem) => {
+    const report = reports[caseStudy.id];
+    if (report) reportStore.current[caseStudy.id] = report;
+  };
+
   // Prototype-only: open the modal in a given state from the Preview control.
   const previewCase = (state: "ready" | "error") => {
     const sample = items.find(isCaseStudy) ?? null;
@@ -242,7 +250,10 @@ export default function App() {
       <CourseLanding
         course={activeCourse}
         onBack={backToList}
-        onOpenChapter={() => setView("course-chapter")}
+        onOpenChapter={(chapter) => {
+          setChapterIndex(activeCourse.chapters.indexOf(chapter));
+          setView("course-chapter");
+        }}
       />
     );
   }
@@ -251,7 +262,9 @@ export default function App() {
     return (
       <ChapterView
         course={activeCourse}
+        chapterIndex={chapterIndex}
         onExit={() => setView("course-landing")}
+        onCaseReportReady={saveCaseReport}
       />
     );
   }

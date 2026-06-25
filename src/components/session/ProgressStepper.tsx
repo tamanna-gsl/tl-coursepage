@@ -7,13 +7,26 @@ export type StageKey = "reading" | "discussion" | "evaluation";
 // Session progress stepper. Same three-stage model as the modal's journey
 // graphic. Pass the active stage; earlier stages render complete. Reused by
 // the Reading, Discussion, and Evaluation screens.
-export function ProgressStepper({ active }: { active: StageKey }) {
+export function ProgressStepper({
+  active,
+  compact = false,
+}: {
+  active: StageKey;
+  compact?: boolean;
+}) {
   const activeIndex = STAGES.findIndex((s) => s.key === active);
+  const tile = compact ? "h-7 w-7" : "h-9 w-9";
+  const glyph = compact ? "h-4 w-4" : "h-5 w-5";
 
   return (
     <nav aria-label="Session progress">
       {/* Desktop: full horizontal stepper */}
-      <ol className="hidden items-center gap-1 rounded-xl border border-border bg-card p-2 shadow-sm sm:flex">
+      <ol
+        className={cn(
+          "hidden items-center gap-1 rounded-xl border border-border bg-card shadow-sm sm:flex",
+          compact ? "p-1" : "p-2"
+        )}
+      >
         {STAGES.map((stage, i) => {
           const isActive = i === activeIndex;
           const isComplete = i < activeIndex;
@@ -25,13 +38,15 @@ export function ProgressStepper({ active }: { active: StageKey }) {
             >
               <div
                 className={cn(
-                  "flex flex-1 items-center gap-3 rounded-lg px-3 py-2",
+                  "flex flex-1 items-center rounded-lg",
+                  compact ? "gap-2 px-2 py-1" : "gap-3 px-3 py-2",
                   isActive && "bg-primary/10"
                 )}
               >
                 <span
                   className={cn(
-                    "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
+                    "flex shrink-0 items-center justify-center rounded-full",
+                    tile,
                     isActive
                       ? "bg-primary text-primary-foreground"
                       : isComplete
@@ -40,15 +55,16 @@ export function ProgressStepper({ active }: { active: StageKey }) {
                   )}
                 >
                   {isComplete ? (
-                    <CheckIcon className="h-5 w-5" aria-hidden />
+                    <CheckIcon className={glyph} aria-hidden />
                   ) : (
-                    <stage.Icon className="h-5 w-5" aria-hidden />
+                    <stage.Icon className={glyph} aria-hidden />
                   )}
                 </span>
                 <span className="min-w-0">
                   <span
                     className={cn(
-                      "block truncate text-sm font-bold leading-tight",
+                      "block truncate font-bold leading-tight",
+                      compact ? "text-xs" : "text-sm",
                       isActive || isComplete
                         ? "text-foreground"
                         : "text-muted-foreground"
@@ -56,9 +72,11 @@ export function ProgressStepper({ active }: { active: StageKey }) {
                   >
                     {stage.label}
                   </span>
-                  <span className="block truncate text-xs leading-tight text-muted-foreground">
-                    {stage.sub}
-                  </span>
+                  {!compact && (
+                    <span className="block truncate text-xs leading-tight text-muted-foreground">
+                      {stage.sub}
+                    </span>
+                  )}
                 </span>
                 <span className="sr-only">
                   {isActive
@@ -70,7 +88,7 @@ export function ProgressStepper({ active }: { active: StageKey }) {
               </div>
               {i < STAGES.length - 1 && (
                 <ChevronRightIcon
-                  className="mx-1 h-4 w-4 shrink-0 text-muted-foreground/40"
+                  className="mx-0.5 h-4 w-4 shrink-0 text-muted-foreground/40"
                   aria-hidden
                 />
               )}
