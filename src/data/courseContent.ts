@@ -1,4 +1,8 @@
 import entrepreneurshipImg from "../assets/entrepreneurship.png";
+import ananyaImg from "../assets/ananya.png";
+import rohanImg from "../assets/rohan.png";
+import meeraImg from "../assets/meera.png";
+import arjunImg from "../assets/arjun.png";
 
 // Course shell content (in-depth course). Separate from the library catalogue:
 // this is the chapter / module domain that the course shell renders, and that
@@ -39,6 +43,7 @@ export interface Mentor {
   name: string;
   role: string;
   blurb: string;
+  imageUrl?: string;
 }
 
 export interface Course {
@@ -173,16 +178,35 @@ export const entrepreneurshipCourse: Course = {
   ],
   mentors: [
     {
-      id: "m1",
-      name: "Kabir Anand",
-      role: "Startup Coach",
-      blurb: "Warm and patient, breaks things down so everything starts to make sense.",
+      id: "ananya",
+      name: "Ananya Mehta",
+      role: "Angel Investor",
+      blurb:
+        "Witty and encouraging, points out your mistakes but always backs you!",
+      imageUrl: ananyaImg,
     },
     {
-      id: "m2",
-      name: "Priya Nair",
-      role: "Business Coach",
-      blurb: "Energetic and curious, nudges you to think a little more deeply.",
+      id: "rohan",
+      name: "Rohan Shah",
+      role: "Venture Capitalist",
+      blurb:
+        "Fast-paced and no-nonsense, gets to the heart of the issue without wasting time.",
+      imageUrl: rohanImg,
+    },
+    {
+      id: "meera",
+      name: "Meera Kapoor",
+      role: "Startup Coach",
+      blurb: "Energetic and curious, probes you to think more deeply.",
+      imageUrl: meeraImg,
+    },
+    {
+      id: "arjun",
+      name: "Arjun Rao",
+      role: "Founder, Product Builder",
+      blurb:
+        "Warm and patient, breaks things down so everything starts to make sense.",
+      imageUrl: arjunImg,
     },
   ],
 };

@@ -230,6 +230,12 @@ export function CourseLanding({
 
   const [imgBroken, setImgBroken] = useState(false);
 
+  const firstNames = course.mentors.map((m) => m.name.split(" ")[0]);
+  const mentorLabel =
+    firstNames.length <= 2
+      ? firstNames.join(" & ")
+      : `${firstNames[0]}, ${firstNames[1]} and ${firstNames.length - 2} more`;
+
   // Grow the progress bar in on load so the band feels alive.
   const [barWidth, setBarWidth] = useState(0);
   useEffect(() => {
@@ -311,24 +317,40 @@ export function CourseLanding({
 
               <div className="flex items-center gap-2.5">
                 <div className="flex -space-x-2">
-                  {course.mentors.slice(0, 3).map((m, i) => (
+                  {course.mentors.slice(0, 3).map((m, i) =>
+                    m.imageUrl ? (
+                      <img
+                        key={m.id}
+                        src={m.imageUrl}
+                        alt=""
+                        aria-hidden
+                        className="h-8 w-8 rounded-full object-cover ring-2 ring-white/80"
+                      />
+                    ) : (
+                      <span
+                        key={m.id}
+                        className={cn(
+                          "flex h-8 w-8 items-center justify-center rounded-full text-[11px] font-bold text-white ring-2 ring-white/80",
+                          AVATARS[i % AVATARS.length]
+                        )}
+                        aria-hidden
+                      >
+                        {initials(m.name)}
+                      </span>
+                    )
+                  )}
+                  {course.mentors.length > 3 && (
                     <span
-                      key={m.id}
-                      className={cn(
-                        "flex h-8 w-8 items-center justify-center rounded-full text-[11px] font-bold text-white ring-2 ring-white/80",
-                        AVATARS[i % AVATARS.length]
-                      )}
+                      className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-[11px] font-bold text-white ring-2 ring-white/80"
                       aria-hidden
                     >
-                      {initials(m.name)}
+                      +{course.mentors.length - 3}
                     </span>
-                  ))}
+                  )}
                 </div>
                 <p className="text-xs text-white/75">
                   Learn with{" "}
-                  <span className="font-semibold text-white">
-                    {course.mentors.map((m) => m.name.split(" ")[0]).join(" & ")}
-                  </span>
+                  <span className="font-semibold text-white">{mentorLabel}</span>
                 </p>
               </div>
             </div>
@@ -401,9 +423,17 @@ export function CourseLanding({
                     key={m.id}
                     className="flex gap-3 rounded-xl border border-border bg-background/60 p-3"
                   >
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-tertiary text-sm font-bold text-foreground">
-                      {initials(m.name)}
-                    </span>
+                    {m.imageUrl ? (
+                      <img
+                        src={m.imageUrl}
+                        alt=""
+                        className="h-11 w-11 shrink-0 rounded-full object-cover"
+                      />
+                    ) : (
+                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-tertiary text-sm font-bold text-foreground">
+                        {initials(m.name)}
+                      </span>
+                    )}
                     <div className="min-w-0">
                       <p className="text-sm font-bold text-foreground">
                         {m.name}
