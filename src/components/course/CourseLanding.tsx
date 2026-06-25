@@ -104,7 +104,9 @@ function ChapterCard({
   onOpen: () => void;
 }) {
   const locked = chapter.locked;
-  const accent = locked ? LOCKED_ACCENT : ACCENTS[index % ACCENTS.length];
+  // Unlocked chapters share the teal (primary) accent; locked chapters share
+  // the muted accent.
+  const accent = locked ? LOCKED_ACCENT : ACCENTS[0];
 
   return (
     <article className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-card transition-[transform,box-shadow] duration-300 ease-smooth hover:-translate-y-0.5 hover:shadow-module">
@@ -408,7 +410,7 @@ export function CourseLanding({
             <div className="rounded-2xl border border-border bg-card p-5 shadow-card lg:sticky lg:top-6">
               <div className="flex items-center justify-between">
                 <h2 className="flex items-center gap-2 font-heading text-lg font-bold text-foreground">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[hsl(258_90%_96%)] text-[hsl(258_60%_55%)]">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
                     <UsersIcon className="h-4 w-4" aria-hidden />
                   </span>
                   Your Mentors
@@ -435,13 +437,13 @@ export function CourseLanding({
                       </span>
                     )}
                     <div className="min-w-0">
-                      <p className="text-sm font-bold text-foreground">
+                      <p className="text-base font-bold text-foreground">
                         {m.name}
                       </p>
-                      <p className="text-xs font-semibold text-primary-dark">
+                      <p className="text-sm font-semibold text-primary-dark">
                         {m.role}
                       </p>
-                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                      <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
                         {m.blurb}
                       </p>
                     </div>
