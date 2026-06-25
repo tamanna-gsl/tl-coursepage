@@ -50,6 +50,15 @@ const ACCENTS = [
   },
 ];
 
+// Locked chapters share one muted accent so they read as uniformly inert.
+const LOCKED_ACCENT = {
+  strip: "bg-muted-foreground/30",
+  eyebrow: "text-muted-foreground",
+  tile: "bg-muted text-muted-foreground",
+  dot: "bg-muted-foreground/40",
+  link: "text-muted-foreground",
+};
+
 function initials(name: string) {
   return name
     .split(" ")
@@ -80,7 +89,7 @@ function ChapterCard({
   onOpen: () => void;
 }) {
   const locked = chapter.locked;
-  const accent = ACCENTS[index % ACCENTS.length];
+  const accent = locked ? LOCKED_ACCENT : ACCENTS[index % ACCENTS.length];
 
   return (
     <article className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-card transition-[transform,box-shadow] duration-300 ease-smooth hover:-translate-y-0.5 hover:shadow-module">
@@ -91,23 +100,25 @@ function ChapterCard({
           <span
             className={cn(
               "flex h-11 w-11 items-center justify-center rounded-xl",
-              locked ? "bg-muted text-muted-foreground" : accent.tile
+              accent.tile,
+              locked && "ring-1 ring-border"
             )}
           >
             {locked ? (
-              <LockIcon className="h-5 w-5" aria-hidden />
+              <LockIcon className="h-6 w-6" aria-hidden />
             ) : (
               <PlayIcon className="h-5 w-5" aria-hidden />
             )}
           </span>
           <span
             className={cn(
-              "rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide",
+              "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide",
               locked
-                ? "bg-muted text-muted-foreground"
+                ? "bg-muted text-foreground/70"
                 : "bg-primary/10 text-primary-dark"
             )}
           >
+            {locked && <LockIcon className="h-3.5 w-3.5" aria-hidden />}
             {locked ? "Locked" : "In Progress"}
           </span>
         </div>
