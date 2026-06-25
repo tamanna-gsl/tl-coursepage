@@ -1,5 +1,7 @@
 import type { LearningItem } from "../types";
 import entrepreneurshipImg from "./../assets/entrepreneurship.png";
+import empathyImg from "./../assets/empathy-movie.png";
+import nykaaImg from "./../assets/nykaa-cover.png";
 
 // Real GSL catalogue sample. Used as in-memory data for the prototype.
 // Order mirrors the landing page: a short course, an in-depth course, and a
@@ -17,7 +19,7 @@ export const catalogue: LearningItem[] = [
     totalChapters: 3,
     completedChapters: 3,
     tags: ["Interactive characters", "Social Emotional Learning", "20 mins"],
-    // imageUrl: set once the landing page photo is available.
+    imageUrl: empathyImg,
   },
   {
     id: "entrepreneurship-101",
@@ -44,6 +46,6 @@ export const catalogue: LearningItem[] = [
     subject: "Entrepreneurship",
     difficulty: "Easy",
     durationMinutes: 15,
-    // imageUrl: set once the landing page photo is available.
+    imageUrl: nykaaImg,
   },
 ];
