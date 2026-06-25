@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Chapter, Course } from "../../data/courseContent";
 import { Button } from "../Button";
+import { KindLabel } from "../KindLabel";
 import { ArrowLeftIcon, LockIcon, PlayIcon, SparklesIcon } from "../icons";
 import { cn } from "../../lib/cn";
 
@@ -244,81 +245,68 @@ export function CourseLanding({
       </header>
 
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        {/* Hero */}
-        <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[hsl(222_47%_9%)] via-[hsl(216_45%_11%)] to-[hsl(195_55%_13%)] p-6 text-white shadow-module sm:p-10">
-          {/* Soft brand glow for depth */}
-          <div
-            className="pointer-events-none absolute -right-16 -top-24 h-72 w-72 rounded-full bg-primary/25 blur-3xl"
-            aria-hidden
-          />
-          <div
-            className="pointer-events-none absolute -bottom-28 left-1/4 h-72 w-72 rounded-full bg-[hsl(258_100%_70%/0.18)] blur-3xl"
-            aria-hidden
-          />
+        {/* Hero (white treatment; gradient reserved for the button and bar) */}
+        <section className="overflow-hidden rounded-2xl border border-border bg-gradient-card p-6 shadow-card sm:p-10">
+          <KindLabel kind="in-depth-course" />
 
-          <div className="relative">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/15 px-3 py-1 text-xs font-bold uppercase tracking-wide text-[hsl(171_100%_60%)] ring-1 ring-primary/30">
-              <SparklesIcon className="h-3.5 w-3.5" aria-hidden />
-              {course.programme} Programme
-            </span>
+          <h1 className="mt-3 font-heading text-3xl font-extrabold text-secondary sm:text-4xl">
+            {course.title}
+          </h1>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+            {course.description}
+          </p>
 
-            <h1 className="mt-4 font-heading text-3xl font-extrabold sm:text-4xl">
-              {course.title}
-            </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/80 sm:text-base">
-              {course.description}
-            </p>
+          <div className="mt-5 flex flex-wrap gap-2">
+            {stats.map((s) => (
+              <span
+                key={s.label}
+                className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground"
+              >
+                <span className={cn("h-1.5 w-1.5 rounded-full", s.dot)} aria-hidden />
+                {s.label}
+              </span>
+            ))}
+          </div>
 
-            <div className="mt-5 flex flex-wrap gap-2">
-              {stats.map((s) => (
-                <span
-                  key={s.label}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white/85"
-                >
-                  <span className={cn("h-1.5 w-1.5 rounded-full", s.dot)} aria-hidden />
-                  {s.label}
-                </span>
-              ))}
+          <div className="mt-7 flex flex-col gap-6 sm:flex-row sm:items-center">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="gradient"
+                className="!rounded-full"
+                onClick={() => firstUnlocked && onOpenChapter(firstUnlocked)}
+              >
+                Continue
+              </Button>
+              {resumeModule && (
+                <div className="min-w-0">
+                  <p className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
+                    Resume
+                  </p>
+                  <p className="truncate text-sm font-semibold text-foreground">
+                    Chapter 1: {resumeModule.title}
+                  </p>
+                </div>
+              )}
             </div>
 
-            <div className="mt-7 flex flex-col gap-6 sm:flex-row sm:items-center">
-              <div className="flex items-center gap-4">
-                <Button
-                  variant="gradient"
-                  className="!rounded-full"
-                  onClick={() => firstUnlocked && onOpenChapter(firstUnlocked)}
-                >
-                  Continue
-                </Button>
-                {resumeModule && (
-                  <div className="min-w-0">
-                    <p className="text-[11px] font-bold uppercase tracking-wide text-white/50">
-                      Resume
-                    </p>
-                    <p className="truncate text-sm font-semibold text-white/90">
-                      Chapter 1: {resumeModule.title}
-                    </p>
-                  </div>
-                )}
+            <div className="flex-1">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-semibold text-muted-foreground">
+                  Course Progress
+                </span>
+                <span className="font-bold text-foreground">
+                  {course.progressPercent}%
+                </span>
               </div>
-
-              <div className="flex-1">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold text-white/70">
-                    Course Progress
-                  </span>
-                  <span className="font-bold">{course.progressPercent}%</span>
-                </div>
-                <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-white/15">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-[hsl(171_100%_45%)] to-[hsl(190_90%_55%)] shadow-[0_0_12px_hsl(171_100%_50%/0.6)] transition-[width] duration-1000 ease-smooth"
-                    style={{ width: `${barWidth}%` }}
-                  />
-                </div>
-                <p className="mt-1.5 text-xs text-white/60">
-                  You are just getting started. Keep going!
-                </p>
+              <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-muted">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-[hsl(171_100%_42%)] to-[hsl(221_91%_45%)] transition-[width] duration-1000 ease-smooth"
+                  style={{ width: `${barWidth}%` }}
+                />
               </div>
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                You are just getting started. Keep going!
+              </p>
             </div>
           </div>
         </section>
