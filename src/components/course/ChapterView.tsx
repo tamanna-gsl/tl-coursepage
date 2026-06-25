@@ -12,7 +12,7 @@ import { DiscussionScreen } from "../../screens/DiscussionScreen";
 import { EvaluationScreen } from "../../screens/EvaluationScreen";
 import { Button } from "../Button";
 import { MentorWidget } from "./MentorWidget";
-import { AlertIcon, ChevronRightIcon, MenuIcon, XIcon } from "../icons";
+import { AlertIcon, ChevronRightIcon, MenuIcon, PanelLeftIcon, XIcon } from "../icons";
 import { cn } from "../../lib/cn";
 
 // Which phase of the embedded case study session is active (null = not in an
@@ -56,6 +56,7 @@ export function ChapterView({
   const [caseError, setCaseError] = useState(false);
   const [mentorIndex, setMentorIndex] = useState(0);
   const [railOpen, setRailOpen] = useState(false);
+  const [railManualCollapsed, setRailManualCollapsed] = useState(false);
   const [hint, setHint] = useState<string | null>(null);
 
   const currentIndex = modules.findIndex((m) => m.id === currentId);
@@ -64,7 +65,7 @@ export function ChapterView({
 
   const onCaseStudy = currentModule?.type === "case-study";
   const sessionActive = caseSession !== null;
-  const railCollapsed = sessionActive;
+  const railCollapsed = sessionActive || railManualCollapsed;
   const caseItem = caseItemFor(currentModule);
 
   const railRef = useRef<HTMLElement>(null);
@@ -154,10 +155,26 @@ export function ChapterView({
 
   return (
     <div className="flex h-[100dvh] flex-col bg-background">
-      {/* Top bar (minimal course context) */}
-      <header className="z-30 flex shrink-0 items-center justify-between gap-3 border-b border-border bg-card px-4 sm:px-6">
-        <div className="flex items-center gap-2">
-          {!sessionActive && (
+      {/* Top bar: split to mirror the rail / content columns */}
+      <header className="z-30 flex h-20 shrink-0 border-b border-border bg-card">
+        {/* Rail segment (matches the rail width; collapses with the rail) */}
+        <div
+          className={cn(
+            "hidden shrink-0 items-center gap-2.5 overflow-hidden border-border transition-[width] duration-500 ease-smooth motion-reduce:transition-none md:flex",
+            railCollapsed ? "w-0" : "w-72 border-r px-5"
+          )}
+        >
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-sm font-extrabold text-primary">
+            TA
+          </span>
+          <span className="whitespace-nowrap font-heading text-lg font-bold text-foreground">
+            Course Content
+          </span>
+        </div>
+
+        {/* Content segment */}
+        <div className="grid flex-1 grid-cols-[auto_1fr_auto] items-center gap-3 px-4 sm:px-6">
+          <div className="flex items-center">
             <button
               type="button"
               onClick={() => setRailOpen(true)}
@@ -166,22 +183,32 @@ export function ChapterView({
             >
               <MenuIcon className="h-5 w-5" />
             </button>
-          )}
-          <span className="hidden text-sm font-bold text-foreground md:block md:w-72">
-            Course Content
-          </span>
+            {!sessionActive && (
+              <button
+                type="button"
+                onClick={() => setRailManualCollapsed((v) => !v)}
+                aria-pressed={railManualCollapsed}
+                aria-label={
+                  railManualCollapsed ? "Show module list" : "Hide module list"
+                }
+                className="hidden h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:flex"
+              >
+                <PanelLeftIcon className="h-5 w-5" />
+              </button>
+            )}
+          </div>
+          <p className="truncate text-center font-heading text-base font-bold text-secondary sm:text-lg">
+            {course.title}
+          </p>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={sessionActive ? exitSession : onExit}
+          >
+            <XIcon className="h-4 w-4" />
+            {sessionActive ? "Exit Case Study" : "Exit"}
+          </Button>
         </div>
-        <p className="truncate text-center text-sm font-bold text-secondary sm:text-base">
-          {course.title}
-        </p>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={sessionActive ? exitSession : onExit}
-        >
-          <XIcon className="h-4 w-4" />
-          {sessionActive ? "Exit Case Study" : "Exit"}
-        </Button>
       </header>
 
       <div className="flex min-h-0 flex-1">

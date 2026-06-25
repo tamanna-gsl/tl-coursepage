@@ -233,6 +233,15 @@ export function MenuIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+export function PanelLeftIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base} {...props}>
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path d="M9 4v16" />
+    </svg>
+  );
+}
+
 export function ArrowLeftIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg {...base} {...props}>
