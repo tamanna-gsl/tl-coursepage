@@ -26,6 +26,8 @@ export interface Chapter {
   outcomes: string[];
   moduleCount: number;
   locked: boolean;
+  /** Chapter contains a case study module somewhere in its order. */
+  hasCaseStudy?: boolean;
   /** Full module list (provided for the active chapter). */
   modules?: CourseModule[];
 }
@@ -135,6 +137,7 @@ export const entrepreneurshipCourse: Course = {
       ],
       moduleCount: 5,
       locked: true,
+      hasCaseStudy: true,
     },
     {
       id: "ch5",

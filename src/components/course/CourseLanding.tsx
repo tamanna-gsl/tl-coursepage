@@ -1,7 +1,54 @@
 import type { Chapter, Course } from "../../data/courseContent";
 import { Button } from "../Button";
-import { ArrowLeftIcon, LockIcon, PlayIcon } from "../icons";
+import { ArrowLeftIcon, LockIcon, PlayIcon, SparklesIcon } from "../icons";
 import { cn } from "../../lib/cn";
+
+// Per-chapter accent palette, used subtly (top strip, eyebrow, icon tile, and
+// outcome dots) to infuse colour while keeping the cards elegant.
+const ACCENTS = [
+  {
+    strip: "bg-[hsl(171_100%_42%)]",
+    eyebrow: "text-[hsl(171_100%_28%)]",
+    tile: "bg-[hsl(171_100%_95%)] text-[hsl(171_100%_30%)]",
+    dot: "bg-[hsl(171_100%_42%)]",
+    link: "text-[hsl(171_100%_28%)]",
+  },
+  {
+    strip: "bg-[hsl(221_80%_52%)]",
+    eyebrow: "text-[hsl(221_70%_40%)]",
+    tile: "bg-[hsl(221_91%_95%)] text-[hsl(221_70%_42%)]",
+    dot: "bg-[hsl(221_80%_52%)]",
+    link: "text-[hsl(221_70%_40%)]",
+  },
+  {
+    strip: "bg-[hsl(28_95%_52%)]",
+    eyebrow: "text-[hsl(28_85%_40%)]",
+    tile: "bg-[hsl(28_100%_94%)] text-[hsl(28_85%_42%)]",
+    dot: "bg-[hsl(28_95%_52%)]",
+    link: "text-[hsl(28_85%_40%)]",
+  },
+  {
+    strip: "bg-[hsl(258_75%_62%)]",
+    eyebrow: "text-[hsl(258_60%_52%)]",
+    tile: "bg-[hsl(258_90%_96%)] text-[hsl(258_55%_55%)]",
+    dot: "bg-[hsl(258_75%_62%)]",
+    link: "text-[hsl(258_55%_52%)]",
+  },
+  {
+    strip: "bg-[hsl(142_55%_42%)]",
+    eyebrow: "text-[hsl(142_55%_30%)]",
+    tile: "bg-[hsl(142_60%_95%)] text-[hsl(142_50%_30%)]",
+    dot: "bg-[hsl(142_55%_42%)]",
+    link: "text-[hsl(142_55%_30%)]",
+  },
+  {
+    strip: "bg-[hsl(340_75%_55%)]",
+    eyebrow: "text-[hsl(340_70%_45%)]",
+    tile: "bg-[hsl(340_90%_96%)] text-[hsl(340_70%_48%)]",
+    dot: "bg-[hsl(340_75%_55%)]",
+    link: "text-[hsl(340_70%_45%)]",
+  },
+];
 
 function initials(name: string) {
   return name
@@ -10,6 +57,17 @@ function initials(name: string) {
     .slice(0, 2)
     .join("")
     .toUpperCase();
+}
+
+// Distinct from the state tag: a hint that the chapter holds a case study,
+// reusing the library's magenta case-study identity. Shown for any state.
+function CaseStudyMarker() {
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-[hsl(319_100%_95%)] px-2.5 py-1 text-[11px] font-bold text-[hsl(319_75%_42%)]">
+      <SparklesIcon className="h-3.5 w-3.5" aria-hidden />
+      Includes a case study
+    </span>
+  );
 }
 
 function ChapterCard({
@@ -22,80 +80,103 @@ function ChapterCard({
   onOpen: () => void;
 }) {
   const locked = chapter.locked;
+  const accent = ACCENTS[index % ACCENTS.length];
+
   return (
-    <article
-      className={cn(
-        "flex h-full flex-col rounded-2xl border bg-card p-5 shadow-card",
-        locked ? "border-border opacity-90" : "border-border"
-      )}
-    >
-      <div className="flex items-center justify-between">
-        <span
-          className={cn(
-            "flex h-11 w-11 items-center justify-center rounded-xl",
-            locked ? "bg-muted text-muted-foreground" : "bg-primary/10 text-primary"
-          )}
-        >
-          {locked ? (
-            <LockIcon className="h-5 w-5" aria-hidden />
-          ) : (
-            <PlayIcon className="h-5 w-5" aria-hidden />
-          )}
-        </span>
-        <span
-          className={cn(
-            "rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide",
-            locked
-              ? "bg-muted text-muted-foreground"
-              : "bg-primary/10 text-primary-dark"
-          )}
-        >
-          {locked ? "Locked" : "In Progress"}
-        </span>
-      </div>
+    <article className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-card transition-[transform,box-shadow] duration-300 ease-smooth hover:-translate-y-0.5 hover:shadow-module">
+      <div className={cn("h-1.5 w-full", accent.strip)} aria-hidden />
 
-      <h3 className="mt-4 font-heading text-lg font-bold text-foreground">
-        {chapter.name}
-      </h3>
-      <p className="mt-1 text-sm text-muted-foreground">{chapter.description}</p>
-
-      <ul className="mt-3 space-y-1.5">
-        {chapter.outcomes.map((o) => (
-          <li
-            key={o}
-            className="flex items-start gap-2 text-sm text-foreground/80"
+      <div className="flex flex-1 flex-col p-5">
+        <div className="flex items-center justify-between">
+          <span
+            className={cn(
+              "flex h-11 w-11 items-center justify-center rounded-xl",
+              locked ? "bg-muted text-muted-foreground" : accent.tile
+            )}
           >
-            <span
-              className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-muted-foreground/50"
-              aria-hidden
-            />
-            {o}
-          </li>
-        ))}
-      </ul>
-
-      <div className="mt-auto flex items-center justify-between border-t border-border pt-4">
-        <span className="text-xs font-semibold text-muted-foreground">
-          {chapter.moduleCount} Modules
-        </span>
-        {locked ? (
-          <span className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground">
-            <LockIcon className="h-3.5 w-3.5" aria-hidden />
-            Locked
+            {locked ? (
+              <LockIcon className="h-5 w-5" aria-hidden />
+            ) : (
+              <PlayIcon className="h-5 w-5" aria-hidden />
+            )}
           </span>
-        ) : (
-          <button
-            type="button"
-            onClick={onOpen}
-            className="inline-flex items-center gap-1 text-sm font-bold text-primary-dark hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          <span
+            className={cn(
+              "rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide",
+              locked
+                ? "bg-muted text-muted-foreground"
+                : "bg-primary/10 text-primary-dark"
+            )}
           >
-            View Modules
-            <span aria-hidden>&rsaquo;</span>
-          </button>
+            {locked ? "Locked" : "In Progress"}
+          </span>
+        </div>
+
+        <p
+          className={cn(
+            "mt-4 text-xs font-bold uppercase tracking-wide",
+            accent.eyebrow
+          )}
+        >
+          Chapter {index + 1}
+        </p>
+        <h3 className="mt-0.5 font-heading text-lg font-bold text-foreground">
+          {chapter.name}
+        </h3>
+
+        {chapter.hasCaseStudy && (
+          <div className="mt-2">
+            <CaseStudyMarker />
+          </div>
         )}
+
+        <p className="mt-2 text-sm text-muted-foreground">
+          {chapter.description}
+        </p>
+
+        <ul className="mt-3 space-y-1.5">
+          {chapter.outcomes.map((o) => (
+            <li
+              key={o}
+              className="flex items-start gap-2 text-sm text-foreground/80"
+            >
+              <span
+                className={cn("mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full", accent.dot)}
+                aria-hidden
+              />
+              {o}
+            </li>
+          ))}
+        </ul>
+
+        <div className="mt-auto flex items-center justify-between border-t border-border pt-4">
+          <span className="text-xs font-semibold text-muted-foreground">
+            {chapter.moduleCount} Modules
+          </span>
+          {locked ? (
+            <span className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground">
+              <LockIcon className="h-3.5 w-3.5" aria-hidden />
+              Locked
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={onOpen}
+              className={cn(
+                "inline-flex items-center gap-1 text-sm font-bold hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                accent.link
+              )}
+            >
+              View Modules
+              <span aria-hidden>&rsaquo;</span>
+            </button>
+          )}
+        </div>
       </div>
+
       <span className="sr-only">
         Chapter {index + 1}. {locked ? "Locked." : "In progress."}
+        {chapter.hasCaseStudy ? " Includes a case study." : ""}
       </span>
     </article>
   );
