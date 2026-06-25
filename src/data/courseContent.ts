@@ -44,6 +44,7 @@ export interface Course {
   title: string;
   programme: string;
   description: string;
+  audience: string;
   progressPercent: number;
   chapters: Chapter[];
   mentors: Mentor[];
@@ -87,6 +88,7 @@ export const entrepreneurshipCourse: Course = {
   programme: "Young Pioneers",
   description:
     "Learn how to spot opportunities, solve problems, and make smart decisions. And walk away knowing how to build a business plan from just an idea!",
+  audience: "Ages 12 to 17",
   progressPercent: 5,
   chapters: [
     {

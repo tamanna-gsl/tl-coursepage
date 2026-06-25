@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import type { Chapter, Course } from "../../data/courseContent";
 import { Button } from "../Button";
 import { ArrowLeftIcon, LockIcon, PlayIcon, SparklesIcon } from "../icons";
@@ -204,6 +205,24 @@ export function CourseLanding({
   onOpenChapter: (chapter: Chapter) => void;
 }) {
   const firstUnlocked = course.chapters.find((c) => !c.locked);
+  const totalModules = course.chapters.reduce((s, c) => s + c.moduleCount, 0);
+  const resumeModule =
+    firstUnlocked?.modules?.find((m) => !m.completed) ??
+    firstUnlocked?.modules?.[0];
+
+  const stats = [
+    { label: `${course.chapters.length} Chapters`, dot: "bg-[hsl(171_100%_45%)]" },
+    { label: `${totalModules} Modules`, dot: "bg-[hsl(221_80%_60%)]" },
+    { label: `${course.mentors.length} Mentors`, dot: "bg-[hsl(28_95%_55%)]" },
+    { label: course.audience, dot: "bg-[hsl(340_80%_65%)]" },
+  ];
+
+  // Grow the progress bar in on load so the band feels alive.
+  const [barWidth, setBarWidth] = useState(0);
+  useEffect(() => {
+    const t = window.setTimeout(() => setBarWidth(course.progressPercent), 150);
+    return () => clearTimeout(t);
+  }, [course.progressPercent]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -226,33 +245,79 @@ export function CourseLanding({
 
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         {/* Hero */}
-        <section className="overflow-hidden rounded-2xl bg-[hsl(222_47%_11%)] p-6 text-white shadow-module sm:p-10">
-          <h1 className="font-heading text-3xl font-extrabold sm:text-4xl">
-            {course.title}
-          </h1>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/80 sm:text-base">
-            {course.description}
-          </p>
-          <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center">
-            <Button
-              variant="primary"
-              className="!rounded-full"
-              onClick={() => firstUnlocked && onOpenChapter(firstUnlocked)}
-            >
-              Continue
-            </Button>
-            <div className="flex-1">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-white/70">
-                  Course Progress
+        <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[hsl(222_47%_9%)] via-[hsl(216_45%_11%)] to-[hsl(195_55%_13%)] p-6 text-white shadow-module sm:p-10">
+          {/* Soft brand glow for depth */}
+          <div
+            className="pointer-events-none absolute -right-16 -top-24 h-72 w-72 rounded-full bg-primary/25 blur-3xl"
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none absolute -bottom-28 left-1/4 h-72 w-72 rounded-full bg-[hsl(258_100%_70%/0.18)] blur-3xl"
+            aria-hidden
+          />
+
+          <div className="relative">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/15 px-3 py-1 text-xs font-bold uppercase tracking-wide text-[hsl(171_100%_60%)] ring-1 ring-primary/30">
+              <SparklesIcon className="h-3.5 w-3.5" aria-hidden />
+              {course.programme} Programme
+            </span>
+
+            <h1 className="mt-4 font-heading text-3xl font-extrabold sm:text-4xl">
+              {course.title}
+            </h1>
+            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/80 sm:text-base">
+              {course.description}
+            </p>
+
+            <div className="mt-5 flex flex-wrap gap-2">
+              {stats.map((s) => (
+                <span
+                  key={s.label}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white/85"
+                >
+                  <span className={cn("h-1.5 w-1.5 rounded-full", s.dot)} aria-hidden />
+                  {s.label}
                 </span>
-                <span className="font-bold">{course.progressPercent}%</span>
+              ))}
+            </div>
+
+            <div className="mt-7 flex flex-col gap-6 sm:flex-row sm:items-center">
+              <div className="flex items-center gap-4">
+                <Button
+                  variant="gradient"
+                  className="!rounded-full"
+                  onClick={() => firstUnlocked && onOpenChapter(firstUnlocked)}
+                >
+                  Continue
+                </Button>
+                {resumeModule && (
+                  <div className="min-w-0">
+                    <p className="text-[11px] font-bold uppercase tracking-wide text-white/50">
+                      Resume
+                    </p>
+                    <p className="truncate text-sm font-semibold text-white/90">
+                      Chapter 1: {resumeModule.title}
+                    </p>
+                  </div>
+                )}
               </div>
-              <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-white/15">
-                <div
-                  className="h-full rounded-full bg-primary"
-                  style={{ width: `${course.progressPercent}%` }}
-                />
+
+              <div className="flex-1">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-white/70">
+                    Course Progress
+                  </span>
+                  <span className="font-bold">{course.progressPercent}%</span>
+                </div>
+                <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-white/15">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-[hsl(171_100%_45%)] to-[hsl(190_90%_55%)] shadow-[0_0_12px_hsl(171_100%_50%/0.6)] transition-[width] duration-1000 ease-smooth"
+                    style={{ width: `${barWidth}%` }}
+                  />
+                </div>
+                <p className="mt-1.5 text-xs text-white/60">
+                  You are just getting started. Keep going!
+                </p>
               </div>
             </div>
           </div>
