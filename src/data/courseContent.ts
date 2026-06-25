@@ -46,6 +46,8 @@ export interface Course {
   description: string;
   audience: string;
   progressPercent: number;
+  /** Course image, shared with the library card. Stand-in for the prototype. */
+  imageUrl?: string;
   chapters: Chapter[];
   mentors: Mentor[];
 }
@@ -90,6 +92,8 @@ export const entrepreneurshipCourse: Course = {
     "Learn how to spot opportunities, solve problems, and make smart decisions. And walk away knowing how to build a business plan from just an idea!",
   audience: "Ages 12 to 17",
   progressPercent: 5,
+  // Placeholder imagery for the prototype; the real course photo replaces this.
+  imageUrl: "https://picsum.photos/seed/entrepreneurship-level-1/1280/520",
   chapters: [
     {
       id: "ch1",

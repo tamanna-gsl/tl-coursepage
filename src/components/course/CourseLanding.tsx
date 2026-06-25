@@ -228,6 +228,8 @@ export function CourseLanding({
     { label: course.audience, dot: "bg-[hsl(330_100%_70%)]" },
   ];
 
+  const [imgBroken, setImgBroken] = useState(false);
+
   // Grow the progress bar in on load so the band feels alive.
   const [barWidth, setBarWidth] = useState(0);
   useEffect(() => {
@@ -255,8 +257,24 @@ export function CourseLanding({
       </header>
 
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        {/* Hero (bold teal-to-blue gradient with white text) */}
+        {/* Hero (course image under a teal-to-blue gradient overlay) */}
         <section className="relative overflow-hidden rounded-2xl bg-[linear-gradient(120deg,hsl(171_90%_32%)_0%,hsl(189_85%_31%)_42%,hsl(216_80%_38%)_100%)] p-5 text-white shadow-module sm:p-6">
+          {course.imageUrl && !imgBroken && (
+            <>
+              <img
+                src={course.imageUrl}
+                alt=""
+                aria-hidden
+                onError={() => setImgBroken(true)}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              <div
+                aria-hidden
+                className="absolute inset-0 bg-[linear-gradient(120deg,hsl(171_92%_28%/0.94)_0%,hsl(189_88%_28%/0.9)_45%,hsl(216_82%_34%/0.88)_100%)]"
+              />
+            </>
+          )}
+
           <div className="relative">
             <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-[hsl(28_100%_72%)]">
               <span
