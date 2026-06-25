@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Chapter, Course } from "../../data/courseContent";
 import { Button } from "../Button";
-import { KindLabel } from "../KindLabel";
 import {
   ArrowLeftIcon,
   BookIcon,
@@ -223,10 +222,10 @@ export function CourseLanding({
   const totalModules = course.chapters.reduce((s, c) => s + c.moduleCount, 0);
 
   const stats = [
-    { label: `${course.chapters.length} Chapters`, dot: "bg-[hsl(171_100%_45%)]" },
-    { label: `${totalModules} Modules`, dot: "bg-[hsl(221_80%_60%)]" },
-    { label: `${course.mentors.length} Mentors`, dot: "bg-[hsl(28_95%_55%)]" },
-    { label: course.audience, dot: "bg-[hsl(340_80%_65%)]" },
+    { label: `${course.chapters.length} Chapters`, dot: "bg-[hsl(171_100%_60%)]" },
+    { label: `${totalModules} Modules`, dot: "bg-[hsl(210_100%_68%)]" },
+    { label: `${course.mentors.length} Mentors`, dot: "bg-[hsl(28_100%_62%)]" },
+    { label: course.audience, dot: "bg-[hsl(330_100%_70%)]" },
   ];
 
   // Grow the progress bar in on load so the band feels alive.
@@ -256,14 +255,20 @@ export function CourseLanding({
       </header>
 
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        {/* Hero (white-to-tint gradient; text sits on the lighter side) */}
-        <section className="relative overflow-hidden rounded-2xl border border-border bg-[linear-gradient(115deg,hsl(0_0%_100%)_0%,hsl(0_0%_100%)_44%,hsl(185_70%_88%)_72%,hsl(255_80%_90%)_100%)] p-5 shadow-card sm:p-6">
+        {/* Hero (bold teal-to-blue gradient with white text) */}
+        <section className="relative overflow-hidden rounded-2xl bg-[linear-gradient(120deg,hsl(171_90%_32%)_0%,hsl(189_85%_31%)_42%,hsl(216_80%_38%)_100%)] p-5 text-white shadow-module sm:p-6">
           <div className="relative">
-            <KindLabel kind="in-depth-course" />
-            <h1 className="mt-2 font-heading text-2xl font-extrabold text-secondary sm:text-3xl">
+            <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-[hsl(28_100%_72%)]">
+              <span
+                className="h-2 w-2 rounded-full bg-[hsl(28_100%_62%)]"
+                aria-hidden
+              />
+              In-Depth Course
+            </span>
+            <h1 className="mt-2 font-heading text-2xl font-extrabold sm:text-3xl">
               {course.title}
             </h1>
-            <p className="mt-1.5 line-clamp-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+            <p className="mt-1.5 line-clamp-2 max-w-2xl text-sm leading-relaxed text-white/85">
               {course.description}
             </p>
 
@@ -273,7 +278,7 @@ export function CourseLanding({
                 {stats.map((s) => (
                   <span
                     key={s.label}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-white/12 px-3 py-1 text-xs font-medium text-white/90"
                   >
                     <span
                       className={cn("h-1.5 w-1.5 rounded-full", s.dot)}
@@ -290,7 +295,7 @@ export function CourseLanding({
                     <span
                       key={m.id}
                       className={cn(
-                        "flex h-8 w-8 items-center justify-center rounded-full text-[11px] font-bold text-white ring-2 ring-card",
+                        "flex h-8 w-8 items-center justify-center rounded-full text-[11px] font-bold text-white ring-2 ring-white/80",
                         AVATARS[i % AVATARS.length]
                       )}
                       aria-hidden
@@ -299,9 +304,9 @@ export function CourseLanding({
                     </span>
                   ))}
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-white/75">
                   Learn with{" "}
-                  <span className="font-semibold text-foreground">
+                  <span className="font-semibold text-white">
                     {course.mentors.map((m) => m.name.split(" ")[0]).join(" & ")}
                   </span>
                 </p>
@@ -309,25 +314,23 @@ export function CourseLanding({
             </div>
 
             {/* Foot action row: progress across, Continue on the right */}
-            <div className="mt-4 flex flex-col gap-4 border-t border-border/70 pt-4 sm:flex-row sm:items-center sm:gap-6">
+            <div className="mt-4 flex flex-col gap-4 border-t border-white/20 pt-4 sm:flex-row sm:items-center sm:gap-6">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold text-muted-foreground">
+                  <span className="font-semibold text-white/75">
                     Course Progress
                   </span>
-                  <span className="font-bold text-foreground">
-                    {course.progressPercent}%
-                  </span>
+                  <span className="font-bold">{course.progressPercent}%</span>
                 </div>
-                <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-white/70">
+                <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-white/20">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-[hsl(171_100%_42%)] to-[hsl(221_91%_45%)] transition-[width] duration-1000 ease-smooth"
+                    className="h-full rounded-full bg-gradient-to-r from-[hsl(171_100%_55%)] to-[hsl(190_100%_62%)] transition-[width] duration-1000 ease-smooth"
                     style={{ width: `${barWidth}%` }}
                   />
                 </div>
               </div>
               <Button
-                variant="gradient"
+                variant="inverse"
                 className="w-full shrink-0 !rounded-full sm:w-auto sm:min-w-[8rem]"
                 onClick={() => firstUnlocked && onOpenChapter(firstUnlocked)}
               >

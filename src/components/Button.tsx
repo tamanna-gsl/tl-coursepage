@@ -4,6 +4,7 @@ import { cn } from "../lib/cn";
 type Variant =
   | "primary"
   | "gradient"
+  | "inverse"
   | "secondary"
   | "outline"
   | "ghost"
@@ -17,6 +18,8 @@ const variants: Record<Variant, string> = {
   // Gradient: used for the landing page / library card CTAs.
   gradient:
     "bg-gradient-hero text-primary-foreground hover:opacity-95 shadow-sm",
+  // White CTA for use on a coloured/dark surface.
+  inverse: "bg-white text-secondary hover:bg-white/90 shadow-sm",
   destructive:
     "bg-destructive text-destructive-foreground hover:opacity-90 shadow-sm",
   secondary:
