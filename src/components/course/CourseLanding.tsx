@@ -256,22 +256,8 @@ export function CourseLanding({
       </header>
 
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        {/* Hero (white treatment; gradient reserved for the button and bar) */}
-        <section className="relative overflow-hidden rounded-2xl border border-border bg-gradient-card p-5 shadow-card sm:p-6">
-          {/* Faint colour wash for a touch of life on the white */}
-          <div
-            className="pointer-events-none absolute -right-16 -top-24 h-72 w-72 rounded-full bg-primary/15 blur-3xl"
-            aria-hidden
-          />
-          <div
-            className="pointer-events-none absolute -bottom-24 right-1/4 h-60 w-60 rounded-full bg-[hsl(258_100%_70%/0.13)] blur-3xl"
-            aria-hidden
-          />
-          <div
-            className="pointer-events-none absolute -left-20 top-1/3 h-56 w-56 rounded-full bg-[hsl(28_100%_60%/0.08)] blur-3xl"
-            aria-hidden
-          />
-
+        {/* Hero (white-to-tint gradient; text sits on the lighter side) */}
+        <section className="relative overflow-hidden rounded-2xl border border-border bg-[linear-gradient(115deg,hsl(0_0%_100%)_0%,hsl(0_0%_100%)_44%,hsl(185_70%_88%)_72%,hsl(255_80%_90%)_100%)] p-5 shadow-card sm:p-6">
           <div className="relative">
             <KindLabel kind="in-depth-course" />
             <h1 className="mt-2 font-heading text-2xl font-extrabold text-secondary sm:text-3xl">
@@ -280,47 +266,50 @@ export function CourseLanding({
             <p className="mt-1.5 line-clamp-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
               {course.description}
             </p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {stats.map((s) => (
-                <span
-                  key={s.label}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground"
-                >
-                  <span
-                    className={cn("h-1.5 w-1.5 rounded-full", s.dot)}
-                    aria-hidden
-                  />
-                  {s.label}
-                </span>
-              ))}
-            </div>
 
-            {/* Peeking mentor cluster */}
-            <div className="mt-4 flex items-center gap-3">
-              <div className="flex -space-x-2">
-                {course.mentors.slice(0, 3).map((m, i) => (
+            {/* Chips + peeking mentor cluster on one row */}
+            <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-3">
+              <div className="flex flex-wrap gap-2">
+                {stats.map((s) => (
                   <span
-                    key={m.id}
-                    className={cn(
-                      "flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold text-white ring-2 ring-card",
-                      AVATARS[i % AVATARS.length]
-                    )}
-                    aria-hidden
+                    key={s.label}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground"
                   >
-                    {initials(m.name)}
+                    <span
+                      className={cn("h-1.5 w-1.5 rounded-full", s.dot)}
+                      aria-hidden
+                    />
+                    {s.label}
                   </span>
                 ))}
               </div>
-              <p className="text-xs text-muted-foreground">
-                Learn with{" "}
-                <span className="font-semibold text-foreground">
-                  {course.mentors.map((m) => m.name.split(" ")[0]).join(" & ")}
-                </span>
-              </p>
+
+              <div className="flex items-center gap-2.5">
+                <div className="flex -space-x-2">
+                  {course.mentors.slice(0, 3).map((m, i) => (
+                    <span
+                      key={m.id}
+                      className={cn(
+                        "flex h-8 w-8 items-center justify-center rounded-full text-[11px] font-bold text-white ring-2 ring-card",
+                        AVATARS[i % AVATARS.length]
+                      )}
+                      aria-hidden
+                    >
+                      {initials(m.name)}
+                    </span>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Learn with{" "}
+                  <span className="font-semibold text-foreground">
+                    {course.mentors.map((m) => m.name.split(" ")[0]).join(" & ")}
+                  </span>
+                </p>
+              </div>
             </div>
 
             {/* Foot action row: progress across, Continue on the right */}
-            <div className="mt-5 flex flex-col gap-4 border-t border-border/70 pt-4 sm:flex-row sm:items-center sm:gap-6">
+            <div className="mt-4 flex flex-col gap-4 border-t border-border/70 pt-4 sm:flex-row sm:items-center sm:gap-6">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-semibold text-muted-foreground">
@@ -330,7 +319,7 @@ export function CourseLanding({
                     {course.progressPercent}%
                   </span>
                 </div>
-                <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-muted">
+                <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-white/70">
                   <div
                     className="h-full rounded-full bg-gradient-to-r from-[hsl(171_100%_42%)] to-[hsl(221_91%_45%)] transition-[width] duration-1000 ease-smooth"
                     style={{ width: `${barWidth}%` }}
