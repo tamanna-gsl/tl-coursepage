@@ -266,11 +266,13 @@ export function CourseLanding({
                 alt=""
                 aria-hidden
                 onError={() => setImgBroken(true)}
-                className="absolute inset-0 h-full w-full object-cover"
+                className="absolute inset-0 h-full w-full object-cover object-[center_28%]"
               />
+              {/* Overlay denser on the left (text) and lighter on the right so
+                  the course photo shows through there. */}
               <div
                 aria-hidden
-                className="absolute inset-0 bg-[linear-gradient(120deg,hsl(171_92%_28%/0.94)_0%,hsl(189_88%_28%/0.9)_45%,hsl(216_82%_34%/0.88)_100%)]"
+                className="absolute inset-0 bg-[linear-gradient(105deg,hsl(189_92%_22%/0.96)_0%,hsl(204_86%_26%/0.9)_52%,hsl(216_80%_32%/0.74)_100%)]"
               />
             </>
           )}

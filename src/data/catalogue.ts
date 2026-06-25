@@ -1,4 +1,5 @@
 import type { LearningItem } from "../types";
+import entrepreneurshipImg from "./../assets/entrepreneurship.png";
 
 // Real GSL catalogue sample. Used as in-memory data for the prototype.
 // Order mirrors the landing page: a short course, an in-depth course, and a
@@ -30,7 +31,7 @@ export const catalogue: LearningItem[] = [
     totalChapters: 8,
     completedChapters: 2,
     tags: ["8 chapters", "Mentors", "Grade 7"],
-    // imageUrl: set once the landing page photo is available.
+    imageUrl: entrepreneurshipImg,
   },
   {
     id: "nykaa-story",

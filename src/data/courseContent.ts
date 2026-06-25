@@ -1,3 +1,5 @@
+import entrepreneurshipImg from "../assets/entrepreneurship.png";
+
 // Course shell content (in-depth course). Separate from the library catalogue:
 // this is the chapter / module domain that the course shell renders, and that
 // Screen 9 will plug a Case Study module into. Keyed by course id.
@@ -92,8 +94,7 @@ export const entrepreneurshipCourse: Course = {
     "Learn how to spot opportunities, solve problems, and make smart decisions. And walk away knowing how to build a business plan from just an idea!",
   audience: "Ages 12 to 17",
   progressPercent: 5,
-  // Placeholder imagery for the prototype; the real course photo replaces this.
-  imageUrl: "https://picsum.photos/seed/entrepreneurship-level-1/1280/520",
+  imageUrl: entrepreneurshipImg,
   chapters: [
     {
       id: "ch1",
