@@ -238,101 +238,97 @@ export function ChapterView({
               )}
             </div>
           ) : (
-            <>
-              {!onCaseStudy && (
-                <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border bg-card/60 px-4 py-2.5 sm:px-6">
-                  <div className="flex min-w-0 items-center gap-2.5">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-tertiary text-xs font-bold text-foreground">
-                      {initials(mentor.name)}
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                        Your Mentor
-                      </span>
-                      <span className="block truncate text-sm font-semibold text-foreground">
-                        {mentor.name}
-                      </span>
-                    </span>
+            <div className="min-h-0 flex-1 overflow-y-auto">
+              {onCaseStudy && caseItem ? (
+                <div className="mx-auto max-w-2xl p-4 sm:p-6">
+                  <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
+                    <PreSessionContent
+                      state={caseError ? "error" : "ready"}
+                      caseStudy={caseItem}
+                      onClose={cancelPreSession}
+                      onStart={startSession}
+                      errorBackLabel="Back to chapter"
+                    />
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setMentorIndex((i) => i + 1)}
-                  >
-                    <SwitchIcon className="h-4 w-4" />
-                    <span className="hidden sm:inline">Switch Mentor</span>
-                  </Button>
                 </div>
+              ) : (
+                <LessonContent
+                  module={currentModule}
+                  state={contentState}
+                  onBack={onExit}
+                />
               )}
-
-              <div className="min-h-0 flex-1 overflow-y-auto">
-                {onCaseStudy && caseItem ? (
-                  <div className="mx-auto max-w-2xl p-4 sm:p-6">
-                    <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
-                      <PreSessionContent
-                        state={caseError ? "error" : "ready"}
-                        caseStudy={caseItem}
-                        onClose={cancelPreSession}
-                        onStart={startSession}
-                        errorBackLabel="Back to chapter"
-                      />
-                    </div>
-                  </div>
-                ) : (
-                  <LessonContent
-                    module={currentModule}
-                    state={contentState}
-                    onBack={onExit}
-                  />
-                )}
-              </div>
-            </>
+            </div>
           )}
         </main>
       </div>
 
-      {/* Foot: navigation + progress (hidden during the case study) */}
+      {/* Foot: progress, mentor, and navigation (hidden during the case study) */}
       {!onCaseStudy && (
-        <footer className="z-20 shrink-0 border-t border-border bg-card px-4 py-3 sm:px-6">
-          <div className="flex items-center justify-between gap-3">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={goPrev}
-              disabled={currentIndex <= 0}
-            >
-              Previous
-            </Button>
-            <Button
-              variant="primary"
-              size="sm"
-              className="!rounded-full"
-              onClick={goNext}
-              disabled={
-                currentIndex >= modules.length - 1 && completed.has(currentId)
-              }
-            >
-              Next Lesson
-              <ChevronRightIcon className="h-4 w-4" />
-            </Button>
-            <div className="hidden min-w-[12rem] sm:block">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-muted-foreground">
-                  Chapter Completion
-                </span>
-                <span className="font-bold text-foreground">{percent}%</span>
-              </div>
-              <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                <div
-                  className="h-full rounded-full bg-primary transition-[width] duration-500 ease-smooth"
-                  style={{ width: `${percent}%` }}
-                />
-              </div>
+        <footer className="z-20 shrink-0 border-t border-border bg-card">
+          {/* Chapter completion (full width) */}
+          <div className="px-4 pt-2.5 sm:px-6">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-semibold text-muted-foreground">
+                Chapter Completion
+              </span>
+              <span className="font-bold text-foreground">{percent}%</span>
+            </div>
+            <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full bg-primary transition-[width] duration-500 ease-smooth"
+                style={{ width: `${percent}%` }}
+              />
             </div>
           </div>
-          <p className="mt-2 text-center text-xs font-semibold text-muted-foreground sm:hidden">
-            Chapter Completion {percent}%
-          </p>
+
+          {/* Mentor + navigation */}
+          <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-6">
+            <div className="flex min-w-0 items-center gap-2.5">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-tertiary text-xs font-bold text-foreground">
+                {initials(mentor.name)}
+              </span>
+              <span className="hidden min-w-0 sm:block">
+                <span className="block text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  Your Mentor
+                </span>
+                <span className="block truncate text-sm font-semibold text-foreground">
+                  {mentor.name}
+                </span>
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setMentorIndex((i) => i + 1)}
+              >
+                <SwitchIcon className="h-4 w-4" />
+                <span className="hidden sm:inline">Switch Mentor</span>
+              </Button>
+            </div>
+
+            <div className="flex shrink-0 items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={goPrev}
+                disabled={currentIndex <= 0}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                className="!rounded-full"
+                onClick={goNext}
+                disabled={
+                  currentIndex >= modules.length - 1 && completed.has(currentId)
+                }
+              >
+                Next Lesson
+                <ChevronRightIcon className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
         </footer>
       )}
 
@@ -375,7 +371,7 @@ export function ChapterView({
       )}
 
       {/* Prototype-only state preview */}
-      <div className="fixed bottom-3 right-3 z-40 flex items-center gap-1 rounded-full border border-border bg-card/95 p-1 shadow-module backdrop-blur">
+      <div className="fixed right-3 top-20 z-40 flex items-center gap-1 rounded-full border border-border bg-card/95 p-1 shadow-module backdrop-blur">
         <span className="px-2 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
           Module
         </span>
